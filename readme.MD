@@ -11,3 +11,6 @@ Annotations:
 - CHASMplus
 - boostDM
 - MutPred-Indel
+
+The input is a 5-column .tsv file: 'chr', 'start', 'ref', 'var', 'tumour_id'. 
+The script was built and tested in a conda environment with vep, vcf2maf, oncokbannotator and opencravat installed with all their dependencies.
