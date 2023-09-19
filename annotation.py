@@ -440,10 +440,10 @@ command = [
     oncokb_token
 ]
 
-
-
 # Use subprocess to run the command
 process = subprocess.run(command, capture_output=True, text=True)
+
+
 
 ############### Compress output files ###############
 def gzip_func(input_dir):
