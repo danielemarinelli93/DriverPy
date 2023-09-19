@@ -440,5 +440,33 @@ command = [
     oncokb_token
 ]
 
+
+
 # Use subprocess to run the command
 process = subprocess.run(command, capture_output=True, text=True)
+
+############### Compress output files ###############
+def gzip_func(input_dir):
+    
+    # Get sorted file list
+    file_list = sorted(os.listdir(input_dir))
+
+    # Loop through the input files in the directory
+    for input_file in file_list:
+    
+        # Construct the input file path
+        input_file_path = os.path.join(input_dir, input_file)
+
+        # Define the command to run
+        command = ['gzip', '-9', input_file_path]
+
+        # Run the command using subprocess
+        subprocess.run(command, capture_output=True, text=True)
+
+# Compress VEP output
+gzip_func(vep_output_dir)
+gzip_func(vcf2maf_output_dir)
+gzip_func(cravat_output_dir)
+gzip_func(cgi_input_dir)
+gzip_func(cgi_output_dir)
+gzip_func(merged_results_dir)
