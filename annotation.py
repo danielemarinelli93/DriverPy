@@ -311,24 +311,28 @@ for filename in os.listdir(vep_output_dir):
         # Execute the command using subprocess
         subprocess.run(command)
 
+# Define the function to append files
 def append_df(directory):
-    
+   
     # List all files in the directory
-    file_list = [file for file in os.listdir(directory) if file.endswith('variant.tsv')]
+    file_list_vcf2maf = os.listdir(directory)
 
     # Initialize an empty DataFrame to store the combined data
     merged = pd.DataFrame()
 
-    for file in file_list:
+    for file in file_list_vcf2maf:
+
         # Read file
-        x = pd.read_csv(os.path.join(directory, file), sep='\t', comment='#')
+        x = pd.read_csv(os.path.join(directory, file), sep='\t', skiprows=1)
 
         # Append df
         merged = merged.append(x, ignore_index=True)
 
+    # Write merged output .tsv
     merged.to_csv(os.path.join(directory, 'merged.tsv'), sep='\t', index=False)
 
-append_df(cravat_output_dir)
+# Execute
+append_df(vcf2maf_output_dir)
 
 
 
