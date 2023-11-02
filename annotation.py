@@ -132,6 +132,12 @@ def delins_pos(row):
         row['start'] = row['end'] + 1
     return row
 
+def dnv_pos(row):
+    if len(row['var']) == 2 and len(row['ref']) == 2:
+        row['end'] = row['start'] + 1
+    return row
+
+mut = mut.apply(dnv_pos, axis=1)
 mut = mut.apply(delins_pos, axis=1)
 
 # VEP requirement for allele
