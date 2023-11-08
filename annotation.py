@@ -52,8 +52,6 @@ with open(config_path, 'r') as file:
             vep_cache_dir = line.split('=')[1].strip()
         elif line.startswith('LoF'):
             loftee = line.strip()
-        elif line.startswith('CADD'):
-            cadd = line.strip()
         elif line.startswith('SpliceAI'):
             spliceai = line.strip()
         elif line.startswith('vcf2maf_dir'):
@@ -110,6 +108,12 @@ r.json()
 cgi_req = requests.get('https://www.cancergenomeinterpreter.org/api/v1', headers=headers)
 cgi_ids = cgi_req.json()
 cgi_job_id = cgi_ids[-1]
+
+# Write CGI job id to a text file
+with open(os.path.join(cgi_output_dir, 'cgi_job_id.txt'), 'w') as file:
+
+    # Write the string to the file
+    file.write(cgi_job_id)
 
 
 
