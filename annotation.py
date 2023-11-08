@@ -317,7 +317,7 @@ for filename in os.listdir(vep_output_dir):
         # Execute the command using subprocess
         subprocess.run(command)
 
-# Define the function to append files for vcf2maf
+# Define the function to append files for openCRAVAT
 def append_df(directory):
     
     # List all files in the directory
