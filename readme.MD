@@ -13,7 +13,8 @@ Annotations:
 - boostDM
 - oncoKB
 
-######
+------------
+
 - The input is a 5-column .tsv file: 'chr', 'start', 'ref', 'var', 'tumour_id'. 
 - The tool is to be initiated through the "main.py" script. All modules are stored in the "core.py" files. 
 - VEP plugins are to be installed according to: https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
