@@ -13,5 +13,10 @@ Annotations:
 - boostDM
 - oncoKB
 
-The input is a 5-column .tsv file: 'chr', 'start', 'ref', 'var', 'tumour_id'. 
-The script was built and tested in a conda environment with vep, vcf2maf, oncokbannotator and opencravat installed with all their dependencies.
+######
+- The input is a 5-column .tsv file: 'chr', 'start', 'ref', 'var', 'tumour_id'. 
+- The tool is to be initiated through the "main.py" script. All modules are stored in the "core.py" files. 
+- VEP plugins are to be installed according to: https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
+- openCRAVAT modules are to be installed according to: https://open-cravat.readthedocs.io/en/latest/quickstart.html.
+- The "configs.txt" file needs to be modified according to the location of binary and reference files for VEP/openCRAVAT. Additional VEP plugins/openCRAVAT modules are to be specified in the configs file. 
+
