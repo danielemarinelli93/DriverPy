@@ -1,5 +1,5 @@
 # Input file
-input = 20231108_peace_input.tsv
+input = 
 
 # Oncotree code
 oncotree_code = NSCLC
