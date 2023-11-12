@@ -3,7 +3,7 @@ input = 20231108_peace_input.tsv
 
 
 ############### Cancer genome interpreter ###############
-cgi_id = danielemarinelli1@gmail.com 9b0863b535d84514fae2
+cgi_id = your_cgi@email your_cgi_token
 
 
 ############### ENSEMBL-VEP ###############
@@ -41,7 +41,7 @@ cravat_anno = chasmplus_LUAD chasmplus_LUSC chasmplus hg19
 oncokb_dir = /home/daniele/xyz/oncokb-annotator/
 
 # OncoKB token
-oncokb_token = 34f64ddf-6d80-48ca-8b97-15b1acb88b9e
+oncokb_token = your_oncokb_token
 
 # Oncotree code
 oncotree_code = NSCLC
