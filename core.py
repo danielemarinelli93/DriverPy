@@ -261,9 +261,15 @@ def vep_run():
         # Set the output file path
         output_file = os.path.join(vep_output_dir, input_file.replace('.tsv', '.vcf'))
 
-	vep_fasta = vep_fasta_hg37 if genome_ver == 'GRCh37' else vep_fasta_hg38 if genome_ver == 'GRCh38' else None
-        loftee = loftee_hg37 if genome_ver == 'GRCh37' else loftee_hg38 if genome_ver == 'GRCh38' else None
-        spliceai = spliceai_hg37 if genome_ver == 'GRCh37' else spliceai_hg38 if genome_ver == 'GRCh38' else None
+        if genome_ver == 'GRCh37':
+            vep_fasta = vep_fasta_hg37    
+            loftee = loftee_hg37
+            spliceai = spliceai_hg37
+
+        elif genome_ver == 'GRCh38':
+            vep_fasta = vep_fasta_hg38
+            loftee = loftee_hg38
+            spliceai = spliceai_hg38
 
         # Run VEP
         command = [
