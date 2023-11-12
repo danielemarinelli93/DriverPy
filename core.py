@@ -52,8 +52,10 @@ with open(config_path, 'r') as file:
             oncotree_code = line.split('=')[1].strip()
         elif line.startswith('cravat_dir'):
             cravat_dir = line.split('=')[1].strip()
-        elif line.startswith('cravat_anno'):
-            cravat_anno = line.split('=')[1].strip()
+        elif line.startswith('cravat_anno_NSCLC'):
+            cravat_anno_NSCLC = line.split('=')[1].strip()
+        elif line.startswith('cravat_anno_BRCA'):
+            cravat_anno_BRCA = line.split('=')[1].strip()
         elif line.startswith('cgi_id'):
             cgi_id = line.split('=')[1].strip()
         elif line.startswith('cgi_reference'):
@@ -404,8 +406,18 @@ def cravat_run():
             # Set the input and output file paths
             input_file = os.path.join(vep_output_dir, filename)
 
+            if genome_ver == 'GRCh37':
+                cravat_genome = 'hg19'
+            elif genome_ver == 'GRCh38':
+                cravat_genome = 'hg38'
+
+            if oncotree_code == 'NSCLC':
+                cravat_anno = cravat_anno_NSCLC
+            elif oncotree_code == 'BRCA':
+                cravat_anno = cravat_anno_BRCA
+            
             # Run openCRAVAT
-            cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t tsv -l {'hg19' if genome_ver == 'GRCh37' else 'hg38' if genome_ver == 'GRCh38' else None} -a {cravat_anno} {'hg19' if genome_ver == 'GRCh37' else None}"
+            cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t tsv -l {cravat_genome} -a {cravat_anno} {'hg19' if cravat_genome == 'hg19' else None}"
             subprocess.run(cmd, shell=True)
 
     # List all files in the directory

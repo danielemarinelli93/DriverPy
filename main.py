@@ -63,8 +63,10 @@ with open(config_path, 'r') as file:
             oncotree_code = line.split('=')[1].strip()
         elif line.startswith('cravat_dir'):
             cravat_dir = line.split('=')[1].strip()
-        elif line.startswith('cravat_anno'):
-            cravat_anno = line.split('=')[1].strip()
+        elif line.startswith('cravat_anno_NSCLC'):
+            cravat_anno_NSCLC = line.split('=')[1].strip()
+        elif line.startswith('cravat_anno_BRCA'):
+            cravat_anno_BRCA = line.split('=')[1].strip()
         elif line.startswith('cgi_id'):
             cgi_id = line.split('=')[1].strip()
         elif line.startswith('cgi_reference'):

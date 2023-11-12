@@ -1,6 +1,9 @@
 # Input file
 input = 20231108_peace_input.tsv
 
+# Oncotree code
+oncotree_code = NSCLC
+
 
 ############### Cancer genome interpreter ###############
 cgi_id = your_cgi@email your_cgi_token
@@ -36,7 +39,8 @@ retain_ann = LoF,LoF_filter,LoF_flags,LoF_info,SpliceAI_pred_DP_AG,SpliceAI_pred
 cravat_dir = /home/daniele/.local/bin/oc
 
 # openCRAVAT modules
-cravat_anno = chasmplus_LUAD chasmplus_LUSC chasmplus hg19
+cravat_anno_NSCLC = chasmplus_LUAD chasmplus_LUSC chasmplus
+cravat_anno_BRCA = chasmplus_BRCA chasmplus
 
 
 ############### OncoKB ###############
@@ -46,5 +50,3 @@ oncokb_dir = /home/daniele/xyz/oncokb-annotator/
 # OncoKB token
 oncokb_token = your_oncokb_token
 
-# Oncotree code
-oncotree_code = NSCLC
