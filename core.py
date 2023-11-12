@@ -30,9 +30,9 @@ with open(config_path, 'r') as file:
             vep_cache_dir = line.split('=')[1].strip()
         elif line.startswith('vep_fasta'):
             vep_fasta = line.split('=')[1].strip()
-        elif line.startswith('LoF_hg37'):
+        elif line.startswith('loftee_hg37'):
             loftee_hg37 = line.split('=')[1].strip()
-        elif line.startswith('LoF_hg38'):
+        elif line.startswith('loftee_hg38'):
             loftee_hg38 = line.split('=')[1].strip()
         elif line.startswith('SpliceAI_hg37'):
             spliceai_hg37 = line.split('=')[1].strip()
