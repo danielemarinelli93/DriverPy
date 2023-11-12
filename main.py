@@ -46,9 +46,9 @@ with open(config_path, 'r') as file:
         elif line.startswith('LoF_hg38'):
             loftee_hg38 = line.split('=')[1].strip()
         elif line.startswith('SpliceAI_hg37'):
-            spliceai_hg37 = line.split('=')[1].strip()
+            spliceai_hg37 = line.split('<-')[1].strip()
         elif line.startswith('SpliceAI_hg38'):
-            spliceai_hg38 = line.split('=')[1].strip()
+            spliceai_hg38 = line.split('<-')[1].strip()
         elif line.startswith('vcf2maf_dir'):
             vcf2maf_dir = line.split('=')[1].strip()
         elif line.startswith('retain_ann'):
