@@ -15,7 +15,6 @@ cravat_output_dir = 'working_dir/cravat_output'
 merged_results_dir = 'working_dir/merged_results'
 
 # Read configurations
-# Read configurations
 with open(config_path, 'r') as file:
     # Read the contents of the file
     contents = file.readlines()
@@ -51,8 +50,6 @@ with open(config_path, 'r') as file:
             cravat_anno = line.split('=')[1].strip()
         elif line.startswith('cgi_id'):
             cgi_id = line.split('=')[1].strip()
-        elif line.startswith('cgi_title'):
-            cgi_title = line.split('=')[1].strip()
         elif line.startswith('cgi_reference'):
             cgi_reference = line.split('=')[1].strip()
         elif line.startswith('cravat_dir'):
@@ -86,14 +83,12 @@ def cgi_run():
                 '\n'
                 'CGI job not submitted: a job with the same id was already submitted'
                 )
-            sys.exit()
         if not cgi_job_id in r.text:
             logging.error(
                 '\n'
                 'CGI job not submitted: this previously submitted job is not anymore on the system\n'
-                'please delete working_dir/cgi_output/cgi_job_id.txt and re-run CGI, if needed'                
+                'please delete working_dir/cgi_output/cgi_job_id.txt and re-run CGI'                
             )
-            sys.exit()
 
     if not os.path.exists(os.path.join(cgi_output_dir, 'cgi_job_id.txt')):
 
@@ -111,12 +106,10 @@ def cgi_run():
 
         # Send input file to API
         headers = {'Authorization': cgi_id}
-        payload = {'cancer_type': oncotree_code, 'title': first_input, 'reference': cgi_reference}
+        payload = {'cancer_type': oncotree_code, 'title': first_input, 'reference': 'hg19' if genome_ver == 'GRCh37' else 'hg38' if genome_ver == 'GRCh38' else None}
         r = requests.post('https://www.cancergenomeinterpreter.org/api/v1',
                         headers=headers,
-                        files={
-                                'mutations': open('working_dir/cgi_input/cgi_input.tsv', 'rb')
-                                },
+                        files={'mutations': open('working_dir/cgi_input/cgi_input.tsv', 'rb')},
                         data=payload)
         r.json()
 
@@ -138,51 +131,53 @@ def cgi_run():
 ### CGI output download
 def cgi_download():
 
-    # Check if the CGI run was already started
-    if os.path.exists(os.path.join(cgi_output_dir, 'cgi_job_id.txt')):
+    if not os.path.exists(os.path.join(cgi_output_dir, 'alterations.tsv')):
 
-        # Read the CGI job id from the .txt file    
-        with open(os.path.join(cgi_output_dir, 'cgi_job_id.txt'), 'r') as cgi_input:
-            cgi_job_id = cgi_input.read().strip()
+        # Check if the CGI run was already started
+        if os.path.exists(os.path.join(cgi_output_dir, 'cgi_job_id.txt')):
 
-        # Set payload
-        payload = {'action': 'download'}
+            # Read the CGI job id from the .txt file    
+            with open(os.path.join(cgi_output_dir, 'cgi_job_id.txt'), 'r') as cgi_input:
+                cgi_job_id = cgi_input.read().strip()
 
-        # Initialize a variable to track whether the job is completed
-        job_completed = False
+            # Set payload
+            payload = {'action': 'download'}
 
-        while not job_completed:
-            # Get CGI run status
-            headers = {'Authorization': cgi_id}
-            response = requests.get(f'https://www.cancergenomeinterpreter.org/api/v1/{cgi_job_id}', headers=headers)
-            
-            if response.status_code == 200:
-                # If the job status is 200, it's completed
-                job_completed = True
-                print("CGI run completed successfully")
+            # Initialize a variable to track whether the job is completed
+            job_completed = False
+
+            while not job_completed:
+                # Get CGI run status
+                headers = {'Authorization': cgi_id}
+                response = requests.get(f'https://www.cancergenomeinterpreter.org/api/v1/{cgi_job_id}', headers=headers)
                 
-                # Download results
-                r = requests.get(f'https://www.cancergenomeinterpreter.org/api/v1/{cgi_job_id}', headers=headers, params=payload)
-                with open('cgi_res.zip', 'wb') as fd:
-                    fd.write(r._content)
-                print('CGI results downloaded successfully')
-                
-                # Unzip output
-                command = ['unzip', 'cgi_res.zip']
-                subprocess.run(command, capture_output=True, text=True)
+                if response.status_code == 200:
+                    # If the job status is 200, it's completed
+                    job_completed = True
+                    print("CGI run completed successfully")
+                    
+                    # Download results
+                    r = requests.get(f'https://www.cancergenomeinterpreter.org/api/v1/{cgi_job_id}', headers=headers, params=payload)
+                    with open('cgi_res.zip', 'wb') as fd:
+                        fd.write(r._content)
+                    print('CGI results downloaded successfully')
+                    
+                    # Unzip output
+                    command = ['unzip', 'cgi_res.zip']
+                    subprocess.run(command, capture_output=True, text=True)
 
-                file_list = ('alterations.tsv', 'biomarkers.tsv', 'summary.txt', 'input01.tsv', 'cgi_res.zip')
+                    file_list = ('alterations.tsv', 'biomarkers.tsv', 'summary.txt', 'input01.tsv', 'cgi_res.zip')
 
-                # Move results to cgi output directory
-                for file in file_list:
-                    shutil.move(file, 'working_dir/cgi_output/')
-            else:
-                # If the CGI run is not completed, wait for 15 minutes before checking again
-                print(f"Job status: {response.status_code}. Retrying in 15 minutes...")
-                time.sleep(900)
-    
-    else:
-        print('CGI job id not available')
+                    # Move results to cgi output directory
+                    for file in file_list:
+                        shutil.move(file, 'working_dir/cgi_output/')
+                else:
+                    # If the CGI run is not completed, wait for 15 minutes before checking again
+                    print(f"Job status: {response.status_code}. Retrying in 15 minutes...")
+                    time.sleep(900)
+        
+        else:
+            print('CGI job id not available')
 
 
 ############### ENSEMBL-VEP & VCF2MAF & OncoKB ###############
@@ -298,7 +293,6 @@ def vep_run():
     if not os.path.exists(vcf2maf_output_dir):
         os.makedirs(vcf2maf_output_dir)
 
-
     # Define the function to run VCF2MAF
     file_list = sorted(file for file in os.listdir(vep_output_dir) if not file.endswith('warnings.txt'))
     for input_file in file_list:
@@ -332,47 +326,51 @@ def vep_run():
             print(f'vcf2maf executing VEP for {input_file_path}')
             print('Output:', result.stdout)
             print('Error:', result.stderr)
-        
-    # List all files in the directory
-    file_list = os.listdir(vcf2maf_output_dir)
+    
+    if not os.path.exists(os.path.join(vcf2maf_output_dir, 'merged.tsv')):
+                          
+        # List all files in the directory
+        file_list = os.listdir(vcf2maf_output_dir)
 
-    if len(file_list) == 1:
-        
-        for file in file_list:
+        if len(file_list) == 1:
             
-            x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
-            
-            x.to_csv(os.path.join(vcf2maf_output_dir, 'merged.tsv'), sep='\t', index=False)
+            for file in file_list:
+                
+                x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
+                
+                x.to_csv(os.path.join(vcf2maf_output_dir, 'merged.tsv'), sep='\t', index=False)
 
-    elif len(file_list) > 1:
+        elif len(file_list) > 1:
 
-        # Initialize an empty DataFrame to store the combined data
-        merged = pd.DataFrame()
+            # Initialize an empty DataFrame to store the combined data
+            merged = pd.DataFrame()
 
-        for file in file_list:
+            for file in file_list:
 
-            # Read file
-            x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
+                # Read file
+                x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
 
-            # Append df
-            merged = merged.append(x, ignore_index=True)
+                # Append df
+                merged = merged.append(x, ignore_index=True)
 
-        # Write merged output .tsv
-        merged.to_csv(os.path.join(vcf2maf_output_dir, 'merged.tsv'), sep='\t', index=False)
-     
-    elif len(file_list) == 0:
-        logging.error(
-            '\n'
-            'No input files for VCF2MAF\n'
-            'please check VEP run for errors'
-        )
-        sys.exit()
+            # Write merged output .tsv
+            merged.to_csv(os.path.join(vcf2maf_output_dir, 'merged.tsv'), sep='\t', index=False)
+         
+        elif len(file_list) == 0:
+            logging.error(
+                '\n'
+                'No input files for VCF2MAF\n'
+                'please check VEP run for errors'
+            )
+            sys.exit()
 
     # Write the OncoKB annotator command
     cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.tsv')} -o {os.path.join(vcf2maf_output_dir, 'merged_oncokb.tsv')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
 
-    # Use subprocess to run the command
-    subprocess.run(cmd, shell=True)
+    if not os.path.exists(os.path.join(vcf2maf_output_dir, 'merged_oncokb.tsv')):
+        # Use subprocess to run the command
+        subprocess.run(cmd, shell=True)
+
 
 ############### openCRAVAT ###############
 
@@ -391,7 +389,7 @@ def cravat_run():
             input_file = os.path.join(vep_output_dir, filename)
 
             # Run openCRAVAT
-            cmd = f'{cravat_dir} run {input_file} -d {cravat_output_dir} -t tsv -l {cravat_genome} -a {cravat_anno}'
+            cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t tsv -l {'hg19' if genome_ver == 'GRCh37' else 'hg38' if genome_ver == 'GRCh38' else None} -a {cravat_anno} {'hg19' if genome_ver == 'GRCh37' else None}"
             subprocess.run(cmd, shell=True)
 
     # List all files in the directory
@@ -408,3 +406,84 @@ def cravat_run():
         merged = merged.append(x, ignore_index=True)
 
     merged.to_csv(os.path.join(cravat_output_dir, 'merged.tsv'), sep='\t', index=False)
+
+
+############### Merging results ###############
+def merging_results():
+
+    if os.path.exists(os.path.join(cravat_output_dir, 'merged.tsv')):
+    
+        # Read openCRAVAT merged output
+        cravat = pd.read_csv(os.path.join(cravat_output_dir, 'merged.tsv'), sep='\t')
+
+        # Remove the 'chr' prefix
+        cravat['original_input.chrom'] = cravat['original_input.chrom'].str.replace('chr', '')
+
+        if genome_ver == 'GRCh37': 
+            
+            # Create join column
+            cravat['join'] = cravat[['original_input.chrom', 'original_input.pos', 'original_input.ref_base', 'original_input.alt_base', 'tags']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
+
+            # Select columns
+            filtered_cravat = cravat[['join', 'chasmplus.pval', 'chasmplus.score', 'chasmplus.transcript', 'chasmplus.all', 'chasmplus_LUAD.pval', 'chasmplus_LUAD.score', 'chasmplus_LUAD.transcript', 'chasmplus_LUAD.all', 'chasmplus_LUSC.pval', 'chasmplus_LUSC.score', 'chasmplus_LUSC.transcript', 'chasmplus_LUSC.all']]
+
+            # Write .tsv file
+            filtered_cravat.to_csv(os.path.join(merged_results_dir, 'filtered_cravat.tsv'), sep='\t', index=False)
+
+        elif genome_ver == 'GRCh38':
+            
+            # Create join column
+            cravat['join'] = cravat[['chrom', 'pos', 'ref_base', 'alt_base', 'tags']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
+
+            # Select columns
+            filtered_cravat = cravat[['join', 'chasmplus.pval', 'chasmplus.score', 'chasmplus.transcript', 'chasmplus.all', 'chasmplus_LUAD.pval', 'chasmplus_LUAD.score', 'chasmplus_LUAD.transcript', 'chasmplus_LUAD.all', 'chasmplus_LUSC.pval', 'chasmplus_LUSC.score', 'chasmplus_LUSC.transcript', 'chasmplus_LUSC.all']]
+
+            # Write .tsv file
+            filtered_cravat.to_csv(os.path.join(merged_results_dir, 'filtered_cravat.tsv'), sep='\t', index=False)
+
+    if os.path.exists(os.path.join(cgi_output_dir, 'alterations.tsv')):
+
+        # Read CGI alterations.tsv output
+        cgi = pd.read_csv(os.path.join(cgi_output_dir, 'alterations.tsv'), sep='\t')
+
+        # Create the join column
+        cgi['join'] = cgi[['CHROMOSOME', 'POSITION', 'REF', 'ALT', 'CGI-Sample ID']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
+
+        # Remove duplicated rows (i.e. rows with multiple calls)
+        filtered_cgi_size = cgi[cgi['join'].map(cgi.groupby('join').size()) == 1]
+
+        # Select columns
+        filtered_cgi = filtered_cgi_size[['join', 'CGI-Oncogenic Summary', 'CGI-Oncogenic Prediction']]
+
+        # Write .tsv file
+        filtered_cgi.to_csv(os.path.join(merged_results_dir, 'filtered_cgi.tsv'), sep='\t', index=False)
+
+    if os.path.exists(os.path.join(vcf2maf_output_dir, 'merged_oncokb.tsv')):
+
+        # Read VCF2maf merged output
+        vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'merged_oncokb.tsv'), sep='\t')
+
+        # Select columns
+        filtered_vcf2maf = vcf2maf[['Hugo_Symbol', 'NCBI_Build', 'Chromosome', 'Start_Position', 'End_Position', 'Strand', 'Variant_Classification', 'Variant_Type', 'Reference_Allele', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode', 'HGVSc', 'HGVSp', 'HGVSp_Short', 'Transcript_ID', 'EXON', 'INTRON', 'all_effects', 'Consequence', 'BIOTYPE', 'CANONICAL', 'IMPACT', 'LoF', 'LoF_filter', 'LoF_flags', 'SpliceAI_pred_SYMBOL', 'SpliceAI_pred_DS_AG', 'SpliceAI_pred_DS_AL', 'SpliceAI_pred_DS_DG', 'SpliceAI_pred_DS_DL', 'ANNOTATED', 'GENE_IN_ONCOKB', 'VARIANT_IN_ONCOKB',	'MUTATION_EFFECT', 'MUTATION_EFFECT_CITATIONS', 'ONCOGENIC', 'LEVEL_1', 'LEVEL_2', 'LEVEL_3A', 'LEVEL_3B', 'LEVEL_4', 'LEVEL_R1', 'LEVEL_R2', 'HIGHEST_LEVEL', 'HIGHEST_SENSITIVE_LEVEL', 'HIGHEST_RESISTANCE_LEVEL', 'TX_CITATIONS', 'LEVEL_Dx1', 'LEVEL_Dx2', 'LEVEL_Dx3', 'HIGHEST_DX_LEVEL', 'DX_CITATIONS', 'LEVEL_Px1', 'LEVEL_Px2', 'LEVEL_Px3', 'HIGHEST_PX_LEVEL', 'PX_CITATIONS']]
+
+        # Create the join column
+        filtered_vcf2maf['join'] = filtered_vcf2maf[['Chromosome', 'Start_Position', 'Reference_Allele', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
+
+        # Write .tsv file
+        filtered_vcf2maf.to_csv(os.path.join(merged_results_dir, 'filtered_vcf2maf.tsv'), sep='\t')
+
+    if os.path.exists(os.path.join(merged_results_dir, 'filtered_cravat.tsv')) & os.path.exists(os.path.join(merged_results_dir, 'filtered_cgi.tsv')) & os.path.exists(os.path.join(merged_results_dir, 'filtered_vcf2maf.tsv')):
+        
+        # Merge dataframes
+        merged_tmp = pd.merge(filtered_vcf2maf, filtered_cgi, on='join', how='left')
+        merged_final = pd.merge(merged_tmp, filtered_cravat, on='join', how='left')
+
+        # Write merged output
+        merged_final.to_csv(os.path.join(merged_results_dir, 'merged.tsv'), sep='\t')
+
+    else:
+        logging.error(
+            '\n'
+            'Unable to merge. Please manually check run'
+        )
+        sys.exit()

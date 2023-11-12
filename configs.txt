@@ -1,9 +1,12 @@
 # Input file
-input = yourfile.tsv
+input = 20231108_peace_input.tsv
+
+
+############### Cancer genome interpreter ###############
+cgi_id = danielemarinelli1@gmail.com 9b0863b535d84514fae2
 
 
 ############### ENSEMBL-VEP ###############
-
 # Reference genome
 genome_ver = GRCh37
 
@@ -18,7 +21,6 @@ SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg
 
 
 ############### VCF2MAF ###############
-
 # VCF2MAF directory
 vcf2maf_dir = /home/daniele/xyz/vcf2maf/vcf2maf-1.6.21/vcf2maf/vcf2maf.pl
 
@@ -27,25 +29,19 @@ retain_ann = LoF,LoF_filter,LoF_flags,LoF_info,SpliceAI_pred_DP_AG,SpliceAI_pred
 
 
 ############### openCRAVAT ###############
-
 # openCRAVAT directory
 cravat_dir = /home/daniele/.local/bin/oc
-cravat_genome = hg19
-cravat_anno = chasmplus_LUAD chasmplus_LUSC chasmplus hg19
 
-############### Cancer genome interpreter ###############
-cgi_id = your@email.com cgi_token
-cgi_title = yourfile.tsv
-cgi_reference = hg19
+# openCRAVAT modules
+cravat_anno = chasmplus_LUAD chasmplus_LUSC chasmplus hg19
 
 
 ############### OncoKB ###############
-
 # OncoKB-annotator
 oncokb_dir = /home/daniele/xyz/oncokb-annotator/
 
 # OncoKB token
-oncokb_token = your_oncokb_token
+oncokb_token = 34f64ddf-6d80-48ca-8b97-15b1acb88b9e
 
 # Oncotree code
 oncotree_code = NSCLC
