@@ -23,5 +23,4 @@ Annotations:
 
 ------------
 To do:
-- set up unique hg selection
 - add stats
