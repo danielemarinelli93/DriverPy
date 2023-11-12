@@ -21,3 +21,7 @@ Annotations:
 - openCRAVAT modules are to be installed according to: https://open-cravat.readthedocs.io/en/latest/quickstart.html.
 - The "configs.txt" file needs to be modified according to the location of binary and reference files for VEP/openCRAVAT. Additional VEP plugins/openCRAVAT modules are to be specified in the configs file. 
 
+------------
+To do:
+- set up unique hg selection
+- add stats
