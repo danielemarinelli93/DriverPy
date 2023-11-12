@@ -16,8 +16,8 @@ vep_cache_dir = /home/daniele/.vep/
 vep_fasta = /home/daniele/.vep/ref_fasta/Homo_sapiens.GRCh37.dna.toplevel.fa.gz
 
 # VEP plugins
-loftee_hg37 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/human_ancestor.grch37.fa.gz
-loftee_hg38 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/human_ancestor.grch38.fa.gz
+loftee_hg37 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee/GRCh37,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/GRCh37/human_ancestor.grch37.fa.gz,conservation_file:/home/daniele/.vep/Plugins/data/loftee/GRCh37/phylocsf_gerp.grch37.sql
+loftee_hg38 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee/GRCh38,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/GRCh38/human_ancestor.grch38.fa.gz,conservation_file:/home/daniele/.vep/Plugins/data/loftee/GRCh38/loftee.grch38.sql
 SpliceAI_hg37 <- SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg19.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg19.vcf.gz
 SpliceAI_hg38 <- SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg38.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg38.vcf.gz
 
