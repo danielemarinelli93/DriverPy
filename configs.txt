@@ -13,7 +13,8 @@ genome_ver = GRCh37
 # VEP directories
 vep_dir = /home/daniele/xyz/ensembl-vep/vep-110.1/ensembl-vep/
 vep_cache_dir = /home/daniele/.vep/
-vep_fasta = /home/daniele/.vep/ref_fasta/Homo_sapiens.GRCh37.dna.toplevel.fa.gz
+vep_fasta_hg37 = /home/daniele/.vep/ref_fasta/Homo_sapiens.GRCh37.dna.toplevel.fa.gz
+vep_fasta_hg38 = /home/daniele/.vep/ref_fasta/Homo_sapiens.GRCh38.dna.toplevel.fa.gz
 
 # VEP plugins
 loftee_hg37 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee/GRCh37,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/GRCh37/human_ancestor.grch37.fa.gz,conservation_file:/home/daniele/.vep/Plugins/data/loftee/GRCh37/phylocsf_gerp.grch37.sql
