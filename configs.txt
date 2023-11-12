@@ -16,8 +16,10 @@ vep_cache_dir = /home/daniele/.vep/
 vep_fasta = /home/daniele/.vep/ref_fasta/Homo_sapiens.GRCh37.dna.toplevel.fa.gz
 
 # VEP plugins
-LoF,loftee_path:/home/daniele/.vep/Plugins/loftee,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/human_ancestor.fa.gz
-SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg19.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg19.vcf.gz
+LoF_hg37,loftee_path:/home/daniele/.vep/Plugins/loftee,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/human_ancestor.grch37.fa.gz
+LoF_hg38,loftee_path:/home/daniele/.vep/Plugins/loftee,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/human_ancestor.grch38.fa.gz
+SpliceAI_hg37,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg19.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg19.vcf.gz
+SpliceAI_hg38,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg38.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg38.vcf.gz
 
 
 ############### VCF2MAF ###############

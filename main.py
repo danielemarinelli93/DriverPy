@@ -41,10 +41,14 @@ with open(config_path, 'r') as file:
             vep_cache_dir = line.split('=')[1].strip()
         elif line.startswith('vep_fasta'):
             vep_fasta = line.split('=')[1].strip()
-        elif line.startswith('LoF'):
-            loftee = line.strip()
-        elif line.startswith('SpliceAI'):
-            spliceai = line.strip()
+        elif line.startswith('LoF_hg37'):
+            loftee_hg37 = line.strip()
+        elif line.startswith('LoF_hg38'):
+            loftee_hg38 = line.strip()
+        elif line.startswith('SpliceAI_hg37'):
+            spliceai_hg37 = line.strip()
+        elif line.startswith('SpliceAI_hg38'):
+            spliceai_hg38 = line.strip()
         elif line.startswith('vcf2maf_dir'):
             vcf2maf_dir = line.split('=')[1].strip()
         elif line.startswith('retain_ann'):

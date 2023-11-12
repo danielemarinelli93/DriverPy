@@ -15,6 +15,7 @@ cravat_output_dir = 'working_dir/cravat_output'
 merged_results_dir = 'working_dir/merged_results'
 
 # Read configurations
+# Read configurations
 with open(config_path, 'r') as file:
     # Read the contents of the file
     contents = file.readlines()
@@ -30,10 +31,14 @@ with open(config_path, 'r') as file:
             vep_cache_dir = line.split('=')[1].strip()
         elif line.startswith('vep_fasta'):
             vep_fasta = line.split('=')[1].strip()
-        elif line.startswith('LoF'):
-            loftee = line.strip()
-        elif line.startswith('SpliceAI'):
-            spliceai = line.strip()
+        elif line.startswith('LoF_hg37'):
+            loftee_hg37 = line.strip()
+        elif line.startswith('LoF_hg38'):
+            loftee_hg38 = line.strip()
+        elif line.startswith('SpliceAI_hg37'):
+            spliceai_hg37 = line.strip()
+        elif line.startswith('SpliceAI_hg38'):
+            spliceai_hg38 = line.strip()
         elif line.startswith('vcf2maf_dir'):
             vcf2maf_dir = line.split('=')[1].strip()
         elif line.startswith('retain_ann'):
@@ -254,6 +259,9 @@ def vep_run():
 
         # Set the output file path
         output_file = os.path.join(vep_output_dir, input_file.replace('.tsv', '.vcf'))
+
+        loftee = loftee_hg37 if genome_ver == 'GRCh37' else loftee_hg38 if genome_ver == 'GRCh38' else None
+        spliceai = spliceai_hg37 if genome_ver == 'GRCh37' else spliceai_hg38 if genome_ver == 'GRCh38' else None
 
         # Run VEP
         command = [
