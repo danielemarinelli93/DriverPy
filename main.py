@@ -4,12 +4,9 @@ import os, subprocess, requests, shutil, time, argparse, logging, sys
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('main')
 
-from core import cgi_run, cgi_download, vep_run, cravat_run, merging_results
+from core import cgi_run, cgi_download, vep_run, cravat_run, merge_res
 
-# Set config path
 config_path = 'configs.txt'
-
-# Set directories
 working_dir = 'working_dir'
 vep_input_dir = 'working_dir/vep_input/'
 vep_output_dir = 'working_dir/vep_output/'
@@ -19,15 +16,7 @@ cgi_output_dir = 'working_dir/cgi_output'
 cravat_output_dir = 'working_dir/cravat_output'
 merged_results_dir = 'working_dir/merged_results'
 
-# Create directories
-if not os.path.exists(working_dir):
-    os.makedirs(working_dir)
-if not os.path.exists(merged_results_dir):
-    os.makedirs(merged_results_dir)
-
-# Read configurations
 with open(config_path, 'r') as file:
-    # Read the contents of the file
     contents = file.readlines()
 
     for line in contents:
@@ -63,16 +52,13 @@ with open(config_path, 'r') as file:
             oncotree_code = line.split('=')[1].strip()
         elif line.startswith('cravat_dir'):
             cravat_dir = line.split('=')[1].strip()
-        elif line.startswith('cravat_anno_NSCLC'):
-            cravat_anno_NSCLC = line.split('=')[1].strip()
-        elif line.startswith('cravat_anno_BRCA'):
-            cravat_anno_BRCA = line.split('=')[1].strip()
         elif line.startswith('cgi_id'):
             cgi_id = line.split('=')[1].strip()
         elif line.startswith('cgi_reference'):
             cgi_reference = line.split('=')[1].strip()
         elif line.startswith('cravat_dir'):
             cravat_dir = line.split('=')[1].strip()
+
 
 def main(args):
     if args.help:
@@ -107,13 +93,13 @@ def main(args):
             'for more details see: https://open-cravat.readthedocs.io/en/latest/quickstart.html'
         )
         cravat_run()
-    elif args.merging_results:
+    elif args.merge_res:
         logging.info(
             '\n'
-            'Merging VEP, openCRAVAT and CGI results'
+            'Merging results'
         )
-        merging_results()
-    elif args.run:
+        merge_res()
+    elif args.all:
         logging.info(
             '\n'
             'Running all modules'
@@ -122,7 +108,7 @@ def main(args):
         vep_run()
         cravat_run()
         cgi_download()
-        merging_results()
+        merge_res()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=False)
@@ -131,8 +117,8 @@ if __name__ == "__main__":
     parser.add_argument('--cgi_download', action='store_true')
     parser.add_argument('--vep_run', action='store_true')
     parser.add_argument('--cravat_run', action='store_true')
-    parser.add_argument('--merging_results', action='store_true')
-    parser.add_argument('--run', action='store_true')
-
+    parser.add_argument('--merge_res', action='store_true')
+    parser.add_argument('--all', action='store_true')
+    
     args = parser.parse_args()
     main(args)

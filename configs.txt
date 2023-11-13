@@ -1,17 +1,17 @@
 # Input file
-input = 
+input = input.tsv
 
 # Oncotree code
-oncotree_code = NSCLC
+oncotree_code = BRCA
 
 
 ############### Cancer genome interpreter ###############
-cgi_id = your_cgi@email your_cgi_token
+cgi_id = email@you.com cgi_token
 
 
-############### ENSEMBL-VEP ###############
+############### ENSEMBL-VEP + VCF2MAF + OncoKB ###############
 # Reference genome
-genome_ver = GRCh37
+genome_ver = GRCh38
 
 # VEP directories
 vep_dir = /home/daniele/xyz/ensembl-vep/vep-110.1/ensembl-vep/
@@ -25,28 +25,19 @@ loftee_hg38 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee/GRCh38,human_anc
 SpliceAI_hg37 <- SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg19.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg19.vcf.gz
 SpliceAI_hg38 <- SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg38.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg38.vcf.gz
 
-
-############### VCF2MAF ###############
 # VCF2MAF directory
 vcf2maf_dir = /home/daniele/xyz/vcf2maf/vcf2maf-1.6.21/vcf2maf/vcf2maf.pl
 
 # VCF2MAF extra annotation to retain
 retain_ann = LoF,LoF_filter,LoF_flags,LoF_info,SpliceAI_pred_DP_AG,SpliceAI_pred_DP_AL,SpliceAI_pred_DP_DG,SpliceAI_pred_DP_DL,SpliceAI_pred_DS_AG,SpliceAI_pred_DS_AL,SpliceAI_pred_DS_DG,SpliceAI_pred_DS_DL,SpliceAI_pred_SYMBOL
 
-
-############### openCRAVAT ###############
-# openCRAVAT directory
-cravat_dir = /home/daniele/.local/bin/oc
-
-# openCRAVAT modules
-cravat_anno_NSCLC = chasmplus_LUAD chasmplus_LUSC chasmplus
-cravat_anno_BRCA = chasmplus_BRCA chasmplus
-
-
-############### OncoKB ###############
 # OncoKB-annotator
 oncokb_dir = /home/daniele/xyz/oncokb-annotator/
 
 # OncoKB token
-oncokb_token = your_oncokb_token
+oncokb_token = oncokb_token
 
+
+############### openCRAVAT ###############
+# openCRAVAT directory
+cravat_dir = /home/daniele/.local/bin/oc
