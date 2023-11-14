@@ -403,21 +403,3 @@ def merge_res():
     merged_tmp = pd.merge(filtered_vcf2maf, filtered_cgi, on='join', how='left')
     merged_final = pd.merge(merged_tmp, filtered_cravat, on='join', how='left')
     merged_final.to_csv(os.path.join(merged_results_dir, 'merged.tsv'), sep='\t')
-
- def gzip_func(input_dir):
-    
-    # Get sorted file list
-    file_list = sorted(os.listdir(input_dir))
-
-    # Loop through the input files in the directory
-    for input_file in file_list:
-    
-        # Construct the input file path
-        input_file_path = os.path.join(input_dir, input_file)
-
-        # Define the command to run
-        command = ['gzip', '-9', input_file_path]
-
-        # Run the command using subprocess
-        subprocess.run(command, capture_output=True, text=True)
-
