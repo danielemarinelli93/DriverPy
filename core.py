@@ -337,7 +337,7 @@ def vep_run():
     filtered_vcf2maf.to_csv(os.path.join(vcf2maf_output_dir, 'filtered_vcf2maf.tsv'), sep='\t')
 
     # Run oncokb-annotator
-    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'filtered_vcf2maf.tsv')} -o {os.path.join(vcf2maf_output_dir, 'merged_oncokb.tsv')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
+    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'filtered_vcf2maf.tsv')} -o {os.path.join(vcf2maf_output_dir, 'merged_filtered_oncokb.tsv')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
     subprocess.run(cmd, shell=True)
 
 ############### openCRAVAT ###############
@@ -396,7 +396,7 @@ def merge_res():
     if not os.path.exists(merged_results_dir):
         os.makedirs(merged_results_dir)
 
-    filtered_vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'filtered_vcf2maf.tsv'), sep='\t')
+    filtered_vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'merged_filtered_oncokb.tsv'), sep='\t')
     filtered_cgi = pd.read_csv(os.path.join(cgi_output_dir, 'filtered_cgi.tsv'), sep='\t')
     filtered_cravat = pd.read_csv(os.path.join(cravat_output_dir, 'filtered_cravat.tsv'), sep='\t')
     
