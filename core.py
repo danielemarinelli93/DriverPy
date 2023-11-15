@@ -304,6 +304,7 @@ def vep_run():
             '--ref-fasta', vep_fasta,
             '--tumor-id', input_file.replace('.vcf', ''),
             '--normal-id', '.',
+            '--ncbi-build', genome_ver,
             '--inhibit-vep',
             '--retain-ann', retain_ann
             ]
