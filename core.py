@@ -358,7 +358,7 @@ def cravat_run():
                 cravat_genome = 'hg38'
 
             if oncotree_code == 'NSCLC':
-                cravat_anno = 'chasmplus_LUAD, chasmplus_LUSC'
+                cravat_anno = 'chasmplus_LUAD chasmplus_LUSC'
             elif oncotree_code == 'BRCA':
                 cravat_anno = 'chasmplus_BRCA'
             
