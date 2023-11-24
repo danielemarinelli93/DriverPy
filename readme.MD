@@ -22,6 +22,8 @@ Annotations:
 - The "configs.txt" file needs to be modified according to the location of binary and reference files for VEP/openCRAVAT. Additional VEP plugins/openCRAVAT modules are to be specified in the configs file. 
 
 ------------
-To do:
+To dos:
 - add stats
 - add final driver + actionable calls
+- run vcf2maf after opencravat
+- set working directory in script
