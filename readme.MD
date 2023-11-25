@@ -26,4 +26,5 @@ To dos:
 - add stats
 - add final driver + actionable calls
 - run vcf2maf after opencravat
-- set working directory in script
+- set working directory in configs
+- make CGI and oncoKB runs optional (both APIs might not be working)
