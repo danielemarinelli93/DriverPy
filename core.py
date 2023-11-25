@@ -311,3 +311,17 @@ def cravat_run():
             cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t vcf -l {cravat_genome} -a chasmplus {cravat_anno} {'hg19' if cravat_genome == 'hg19' else ''}"
             subprocess.run(cmd, shell=True)
 
+
+############### Merge results ###############
+def merge_res():
+    
+    if not os.path.exists(merged_results_dir):
+        os.makedirs(merged_results_dir)
+
+    filtered_vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'merged_filtered_oncokb.tsv'), sep='\t')
+    filtered_cgi = pd.read_csv(os.path.join(cgi_output_dir, 'filtered_cgi.tsv'), sep='\t')
+    filtered_cravat = pd.read_csv(os.path.join(cravat_output_dir, 'filtered_cravat.tsv'), sep='\t')
+    
+    merged_tmp = pd.merge(filtered_vcf2maf, filtered_cgi, on='join', how='left')
+    merged_final = pd.merge(merged_tmp, filtered_cravat, on='join', how='left')
+    merged_final.to_csv(os.path.join(merged_results_dir, 'merged.tsv'), sep='\t')
