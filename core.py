@@ -276,7 +276,6 @@ def vep_run():
             '--plugin', loftee, 
             '--plugin', spliceai,
             '--vcf',
-            '--fork', '4',
             '--hgvs',
             '--symbol',
             '--numbers',
