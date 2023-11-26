@@ -98,7 +98,7 @@ def main(args):
             '\n'
             'Running VCF2MAF'
         )
-        vcf2maf_run
+        vcf2maf_run()
     elif args.merge_res:
         logging.info(
             '\n'

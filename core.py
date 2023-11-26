@@ -331,40 +331,34 @@ def cravat_run():
 
 
 ############### Run VCF2MAF ###############
-def extract_info_headers(vcf_line):
-    """Extracts the column name from an INFO header line."""
-    return re.search(r'ID=([^,]+),', vcf_line).group(1)
-
-def get_info_columns_vcf(file_path):
-    with open(file_path, 'r') as file:
-        csq_columns = []
-        info_columns = []
-
-        for line in file:
-            if line.startswith('##INFO=<ID=CSQ'):
-                csq_columns = re.search(r'Format: (.+)"', line).group(1).split('|')
-            elif line.startswith('##INFO=OC'):
-                info_column = extract_info_headers(line)
-                if info_column not in csq_columns:
-                    info_columns.append(info_column)
-        return {'csq_columns': csq_columns, 'info_columns': info_columns}
-
 def vcf2maf_run():    
     if not os.path.exists(vcf2maf_output_dir):
         os.makedirs(vcf2maf_output_dir)
 
-    file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf'))
+    # Initialize the variables outside the loop
+    csq_columns = []
+    info_columns = []
+
+    # Process only the first .vcf file
+    for file_name in os.listdir(cravat_output_dir):
+        if file_name.endswith('.vcf'):
+            with open(os.path.join(cravat_output_dir, file_name), 'r') as file:
+                for line in file:
+                    if line.startswith('##INFO=<ID=CSQ'):
+                        csq_columns = re.search(r'Format: (.+)"', line).group(1).split('|')
+                    elif line.startswith('##INFO=OC'):
+                        info_column = re.search(r'ID=([^,]+),', line).group(1)
+                        if info_column not in csq_columns:
+                            info_columns.append(info_column)
+            break  # Stop after the first .vcf file
+
+    file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf.vcf'))
 
     for input_file in file_list:
         input_file_path = os.path.join(cravat_output_dir, input_file)
         output_file = os.path.join(vcf2maf_output_dir, input_file.replace('.vcf.vcf', '.maf'))
         
-        for file_name in os.listdir(cravat_output_dir):
-            if file_name.endswith('.vcf'):
-                if get_info_columns_vcf(os.path.join(cravat_output_dir, file_name)):
-                    break
-
-        # Run VCF2MAF
+        # Prepare the command
         command = [
             'perl',
             vcf2maf_dir,
@@ -375,9 +369,10 @@ def vcf2maf_run():
             '--normal-id', '.',
             '--ncbi-build', genome_ver,
             '--inhibit-vep',
-            '--retain-ann', csq_columns,
-            '--retain-info', info_columns
-            ]
+            '--retain-ann', ','.join(csq_columns),
+            '--retain-info', ','.join(info_columns)
+        ]
+        # Execute the command
         subprocess.run(command, capture_output=True, text=True)
 
 
