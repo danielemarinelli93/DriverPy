@@ -4,7 +4,7 @@ import os, subprocess, requests, shutil, time, argparse, logging, sys, re
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('main')
 
-from core import cgi_run, cgi_download, vep_run, cravat_run, merge_res, vcf2maf_run
+from core import cgi_run, cgi_download, vep_run, cravat_run, vcf2maf_run
 
 config_path = 'configs.txt'
 working_dir = 'working_dir'
@@ -124,7 +124,6 @@ if __name__ == "__main__":
     parser.add_argument('--vep_run', action='store_true')
     parser.add_argument('--cravat_run', action='store_true')
     parser.add_argument('--vcf2maf_run', action='store_true')
-    parser.add_argument('--merge_res', action='store_true')
     parser.add_argument('--all', action='store_true')
     
     args = parser.parse_args()
