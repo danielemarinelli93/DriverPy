@@ -348,8 +348,7 @@ def vcf2maf_run():
                         csq_columns = re.search(r'Format: (.+)"', line).group(1).split('|')
                     elif line.startswith('##INFO=OC'):
                         info_column = re.search(r'ID=([^,]+),', line).group(1)
-                        if info_column not in csq_columns:
-                            info_columns.append(info_column)
+                        info_columns.append(info_column)
             break  # Stop after the first .vcf file
 
     file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf.vcf'))
