@@ -25,6 +25,5 @@ Annotations:
 To dos:
 - add stats
 - add final driver + actionable calls
-- run vcf2maf after opencravat
+- run vcf2maf after opencravat (fix VCF2MAF not importing OC columns)
 - set working directory in configs
-- make CGI and oncoKB runs optional (both APIs might not be working)
