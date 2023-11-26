@@ -354,10 +354,15 @@ def vcf2maf_run():
 
     file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf.vcf'))
 
+    if genome_ver == 'GRCh37':
+        vep_fasta = vep_fasta_hg37   
+    elif genome_ver == 'GRCh38':
+        vep_fasta = vep_fasta_hg38
+
     for input_file in file_list:
         input_file_path = os.path.join(cravat_output_dir, input_file)
         output_file = os.path.join(vcf2maf_output_dir, input_file.replace('.vcf.vcf', '.maf'))
-        
+
         # Prepare the command
         command = [
             'perl',
