@@ -94,7 +94,7 @@ def main(args):
         )
         cravat_run()
     elif args.vcf2maf_run:
-        logging.inf(
+        logging.info(
             '\n'
             'Running VCF2MAF'
         )
