@@ -1,5 +1,5 @@
 import pandas as pd
-import os, subprocess, requests, shutil, time, argparse, logging, sys
+import os, subprocess, requests, shutil, time, argparse, logging, sys, re
 
 config_path = 'configs.txt'
 working_dir = 'working_dir'
@@ -56,8 +56,22 @@ with open(config_path, 'r') as file:
 
 ############### Cancer genome interpreter ###############
 
+def server_status(url):
+    try:
+        response = requests.get(url)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
+
 ### CGI run
 def cgi_run():
+    
+    # Check CGI API status
+    cgi_api_url = 'https://www.cancergenomeinterpreter.org/api/v1'
+
+    if not server_status(cgi_api_url):
+        logging.error('CGI server is down. Aborting script.')
+        return
 
     # Create directories
     if not os.path.exists(cgi_input_dir):
@@ -130,6 +144,10 @@ def cgi_run():
 ### CGI output download
 def cgi_download():
 
+    if not os.path.exists(cgi_input_dir):
+        logging.error('CGI server is down. No CGI results to download.')
+        return
+
     job_completed = False
     while not job_completed:
 
@@ -172,9 +190,9 @@ def cgi_download():
         if cgi_log['status'] == 'Running':
             logging.info(
                 '\n'
-                'CGI job running Retrying in 10 seconds...'
+                'CGI job running Retrying in 10 minutes...'
                 )
-            time.sleep(10)
+            time.sleep(600)
             
         if cgi_log['status'] == 'Error':
             logging.error(
@@ -183,7 +201,7 @@ def cgi_download():
             )
 
 
-############### ENSEMBL-VEP & VCF2MAF & OncoKB ###############
+############### ENSEMBL-VEP ###############
 
 ### VEP run
 def vep_run():
@@ -310,6 +328,57 @@ def cravat_run():
             # Run openCRAVAT
             cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t vcf -l {cravat_genome} -a chasmplus {cravat_anno} {'hg19' if cravat_genome == 'hg19' else ''}"
             subprocess.run(cmd, shell=True)
+
+
+############### Run VCF2MAF ###############
+def extract_info_headers(vcf_line):
+    """Extracts the column name from an INFO header line."""
+    return re.search(r'ID=([^,]+),', vcf_line).group(1)
+
+def get_info_columns_vcf(file_path):
+    with open(file_path, 'r') as file:
+        csq_columns = []
+        info_columns = []
+
+        for line in file:
+            if line.startswith('##INFO=<ID=CSQ'):
+                csq_columns = re.search(r'Format: (.+)"', line).group(1).split('|')
+            elif line.startswith('##INFO=OC'):
+                info_column = extract_info_headers(line)
+                if info_column not in csq_columns:
+                    info_columns.append(info_column)
+        return {'csq_columns': csq_columns, 'info_columns': info_columns}
+
+def vcf2maf_run():    
+    if not os.path.exists(vcf2maf_output_dir):
+        os.makedirs(vcf2maf_output_dir)
+
+    file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf'))
+
+    for input_file in file_list:
+        input_file_path = os.path.join(cravat_output_dir, input_file)
+        output_file = os.path.join(vcf2maf_output_dir, input_file.replace('.vcf.vcf', '.maf'))
+        
+        for file_name in os.listdir(cravat_output_dir):
+            if file_name.endswith('.vcf'):
+                if get_info_columns_vcf(os.path.join(cravat_output_dir, file_name)):
+                    break
+
+        # Run VCF2MAF
+        command = [
+            'perl',
+            vcf2maf_dir,
+            '--input-vcf', input_file_path,
+            '--output-maf', output_file,
+            '--ref-fasta', vep_fasta,
+            '--tumor-id', input_file.replace('.vcf', ''),
+            '--normal-id', '.',
+            '--ncbi-build', genome_ver,
+            '--inhibit-vep',
+            '--retain-ann', csq_columns,
+            '--retain-info', info_columns
+            ]
+        subprocess.run(command, capture_output=True, text=True)
 
 
 ############### Merge results ###############

@@ -1,10 +1,10 @@
 import pandas as pd
-import os, subprocess, requests, shutil, time, argparse, logging, sys
+import os, subprocess, requests, shutil, time, argparse, logging, sys, re
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('main')
 
-from core import cgi_run, cgi_download, vep_run, cravat_run, merge_res
+from core import cgi_run, cgi_download, vep_run, cravat_run, merge_res, vcf2maf_run
 
 config_path = 'configs.txt'
 working_dir = 'working_dir'
@@ -93,6 +93,12 @@ def main(args):
             'for more details see: https://open-cravat.readthedocs.io/en/latest/quickstart.html'
         )
         cravat_run()
+    elif args.vcf2maf_run:
+        logging.inf(
+            '\n'
+            'Running VCF2MAF'
+        )
+        vcf2maf_run
     elif args.merge_res:
         logging.info(
             '\n'
@@ -117,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument('--cgi_download', action='store_true')
     parser.add_argument('--vep_run', action='store_true')
     parser.add_argument('--cravat_run', action='store_true')
+    parser.add_argument('--vcf2maf_run', action='store_true')
     parser.add_argument('--merge_res', action='store_true')
     parser.add_argument('--all', action='store_true')
     
