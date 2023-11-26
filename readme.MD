@@ -1,10 +1,11 @@
 This python script was designed as a scalable tool based on some of the most common variant annotators (VEP, openCRAVAT) to annotate cancer driver mutations. The use of multiple variant annotators yields maximal flexibility, as results from one tool might be available only for a specific annotator and the scripts can be updated with new plugins as they're released. 
 
 Variant annotators/pipelines:
-- ENSEMBL-VEP: https://www.ensembl.org/info/docs/tools/vep/index.html
-- openCRAVAT: https://opencravat.org/
+- ENSEMBL-VEP: https://www.ensembl.org/info/docs/tools/vep/index.html, v110.1
+- openCRAVAT: https://opencravat.org/, v2.4.1
 - Cancer Genome Interpreter: https://www.cancergenomeinterpreter.org/home
-- oncoKB: https://github.com/oncokb/oncokb-annotator
+- VCF2MAF: https://github.com/mskcc/vcf2maf, v1.6.21
+- oncoKB: https://github.com/oncokb/oncokb-annotator, v.3.4.0
 
 Annotations:
 - SpliceAI
@@ -26,5 +27,4 @@ Annotations:
 To dos:
 - add stats
 - add final driver + actionable calls
-- run vcf2maf after opencravat (fix VCF2MAF not importing OC columns)
 - set working directory in configs
