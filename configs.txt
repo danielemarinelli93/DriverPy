@@ -28,9 +28,6 @@ SpliceAI_hg38 <- SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_
 # VCF2MAF directory
 vcf2maf_dir = /home/daniele/xyz/vcf2maf/vcf2maf-1.6.21/vcf2maf/vcf2maf.pl
 
-# VCF2MAF extra annotation to retain
-retain_ann = LoF,LoF_filter,LoF_flags,LoF_info,SpliceAI_pred_DP_AG,SpliceAI_pred_DP_AL,SpliceAI_pred_DP_DG,SpliceAI_pred_DP_DL,SpliceAI_pred_DS_AG,SpliceAI_pred_DS_AL,SpliceAI_pred_DS_DG,SpliceAI_pred_DS_DL,SpliceAI_pred_SYMBOL
-
 # OncoKB-annotator
 oncokb_dir = /home/daniele/xyz/oncokb-annotator/
 

@@ -346,10 +346,10 @@ def vcf2maf_run():
                 for line in file:
                     if line.startswith('##INFO=<ID=CSQ'):
                         csq_columns = re.search(r'Format: (.+)"', line).group(1).split('|')
-                    elif line.startswith('##INFO=OC'):
+                    elif line.startswith('##INFO=<ID=OC'):
                         info_column = re.search(r'ID=([^,]+),', line).group(1)
                         info_columns.append(info_column)
-            break  # Stop after the first .vcf file
+            break
 
     file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf.vcf'))
 
