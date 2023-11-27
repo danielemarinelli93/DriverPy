@@ -28,3 +28,4 @@ To dos:
 - add stats
 - add final driver + actionable calls
 - set working directory in configs
+- get the APIs (oncoKB + CGI) as an optional add-on

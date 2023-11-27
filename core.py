@@ -200,7 +200,6 @@ def cgi_download():
                 'Error in the CGI run, please check and re-run'
             )
 
-
 ############### ENSEMBL-VEP ###############
 
 ### VEP run
@@ -329,8 +328,7 @@ def cravat_run():
             cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t vcf -l {cravat_genome} -a chasmplus {cravat_anno} {'hg19' if cravat_genome == 'hg19' else ''}"
             subprocess.run(cmd, shell=True)
 
-
-############### Run VCF2MAF ###############
+############### VCF2MAF + oncoKB-annotator ###############
 def vcf2maf_run():    
     if not os.path.exists(vcf2maf_output_dir):
         os.makedirs(vcf2maf_output_dir)
@@ -404,3 +402,7 @@ def vcf2maf_run():
     # Run oncokb-annotator
     cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.maf')} -o {os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
     subprocess.run(cmd, shell=True)
+
+############### Merging results ###############
+def merge_res():
+    
