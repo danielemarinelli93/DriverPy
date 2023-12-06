@@ -15,11 +15,11 @@ Since both VEP and openCRAVAT can rely on cache files, the core of the DriverPy 
 Additional plugins/modules can be integrated with ease by slightly modifying the script and the configs file.
 
 Separate modules run Cancer Genome Interpreter (https://www.cancergenomeinterpreter.org/) and OncoKB (https://www.oncokb.org/) annotators, which are both API-based and theferore need identification (token and/or email). 
-The oncokb-annotator runs on the output .maf file from the VCF2MAF run. 
-Results from the Cancer Genome Interpreter (actionable calls, boostDM annotations) need to be merged with the .maf file from the VCF2MAF run; the easiest way to do it is through the genomic position and 'tumour_id'. 
+Results from the Cancer Genome Interpreter (actionable calls, boostDM annotations) need to be merged with the .maf file from the VCF2MAF run; the easiest way to do it is through the genomic position and 'tumour_id'. The Cancer Genome Interpreter script runs with the '--cgi_run' flag; after a successful run (please check here: https://www.cancergenomeinterpreter.org/analysis) the results can be downloaded and merged with the '--cgi_download' flag, which also runs the oncokb-annotator.  
+The oncokb-annotator also runs on the output .maf file from the VCF2MAF run either with the '--oncokb_run' flag.
 
 I suggest to run DriverPy in a dedicated conda environment with python 3.7, either locally or on a server. 
-The core of the tool through command line with the 'python3 main.py --all' command. 
+The core of the tool runs through command line with the 'python3 main.py --all' command. 
 All modules are stored in the "core.py" file.
 VEP plugins are to be installed according to: https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
 openCRAVAT modules are to be installed according to: https://open-cravat.readthedocs.io/en/latest/quickstart.html.
