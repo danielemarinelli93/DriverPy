@@ -54,6 +54,212 @@ with open(config_path, 'r') as file:
         elif line.startswith('cravat_dir'):
             cravat_dir = line.split('=')[1].strip()
 
+
+############### ENSEMBL-VEP ###############
+
+### VEP run
+def vep_run():
+     
+     # Create directories
+    if not os.path.exists(vep_input_dir):
+        os.makedirs(vep_input_dir)
+
+    # Read input dataframe removing duplicated rows
+    mut = pd.read_csv(first_input, sep='\t').drop_duplicates()
+
+    # Convert start position so integer
+    mut['start'] = mut['start'].astype(int)
+
+    # Set end position based on VEP requirements
+    mut['end'] = mut['start']
+    mut['end'] = mut['end'].astype(int)
+
+    def delins_pos(row):
+        if row['var'].startswith('-'):
+            row['end'] = row['start'] + len(row['ref']) - 1
+        elif row['ref'].startswith('-'):
+            row['start'] = row['end'] + 1
+        return row
+
+    def dnv_pos(row):
+        if len(row['var']) == 2 and len(row['ref']) == 2:
+            row['end'] = row['start'] + 1
+        return row
+
+    mut = mut.apply(dnv_pos, axis=1)
+    mut = mut.apply(delins_pos, axis=1)
+
+    # VEP requirement for allele
+    mut['allele'] = mut['ref'] + '/' + mut['var']
+
+    # Set strand column
+    mut['strand'] = '+'
+
+    # Select columns
+    mut = mut[['chr', 'start', 'end', 'allele', 'strand', 'tumour_id']]
+
+    # Arrange the input file for a quicker VEP run
+    mut = mut.sort_values(['chr', 'start'])
+
+    # Group the rows based on tumour_id
+    tumours = mut.groupby('tumour_id')
+
+    # Loop through the groups and write each group to a separate tsv file
+    for group_name, group_vep in tumours:
+            
+        # Define the output file path for this group
+        output_file_path = os.path.join('working_dir/vep_input', f'{group_name}.tsv')
+            
+        # Write the group dataframe to the output file as a tsv
+        group_vep.to_csv(output_file_path, sep='\t', index=False, header =False)
+            
+    print('VEP input files successfully created')
+
+    # Run VEP
+    if not os.path.exists(vep_output_dir):
+        os.makedirs(vep_output_dir)
+    
+    file_list = sorted(os.listdir(vep_input_dir)) 
+    for input_file in file_list:
+        input_file_path = os.path.join(vep_input_dir, input_file)
+        output_file = os.path.join(vep_output_dir, input_file.replace('.tsv', '.vcf'))
+
+        if genome_ver == 'GRCh37':
+            vep_fasta = vep_fasta_hg37    
+            loftee = loftee_hg37
+            spliceai = spliceai_hg37
+
+        elif genome_ver == 'GRCh38':
+            vep_fasta = vep_fasta_hg38
+            loftee = loftee_hg38
+            spliceai = spliceai_hg38
+
+        # Run VEP
+        command = [
+            os.path.join(vep_dir, 'vep'),
+            '-i', input_file_path,
+            '-o', output_file,
+            '--dir_cache', vep_cache_dir,
+            '--fasta', vep_fasta,
+            '--offline',
+            '--assembly', genome_ver,
+            '--pick',
+            '--cache',
+            '--plugin', loftee, 
+            '--plugin', spliceai,
+            '--vcf',
+            '--hgvs',
+            '--symbol',
+            '--numbers',
+            '--canonical',
+            '--variant_class',
+            '--no_stats'
+        ]
+        subprocess.run(command, capture_output=True, text=True)
+
+############### openCRAVAT ###############
+
+### openCRAVAT run
+def cravat_run():
+
+    if not os.path.exists(cravat_output_dir):
+        os.makedirs(cravat_output_dir)
+
+    for filename in os.listdir(vep_output_dir):
+        if filename.endswith('.vcf'):           
+            input_file = os.path.join(vep_output_dir, filename)
+
+            if genome_ver == 'GRCh37':
+                cravat_genome = 'hg19'
+            elif genome_ver == 'GRCh38':
+                cravat_genome = 'hg38'
+
+            if oncotree_code == 'NSCLC':
+                cravat_anno = 'chasmplus_LUAD chasmplus_LUSC'
+            elif oncotree_code == 'BRCA':
+                cravat_anno = 'chasmplus_BRCA'
+            
+            # Run openCRAVAT
+            cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t vcf -l {cravat_genome} -a chasmplus {cravat_anno} {'hg19' if cravat_genome == 'hg19' else ''}"
+            subprocess.run(cmd, shell=True)
+
+
+############### Run VCF2MAF ###############
+def vcf2maf_run():    
+    if not os.path.exists(vcf2maf_output_dir):
+        os.makedirs(vcf2maf_output_dir)
+
+    # Initialize the variables outside the loop
+    csq_columns = []
+    info_columns = []
+
+    # Process only the first .vcf file
+    for file_name in os.listdir(cravat_output_dir):
+        if file_name.endswith('.vcf'):
+            with open(os.path.join(cravat_output_dir, file_name), 'r') as file:
+                for line in file:
+                    if line.startswith('##INFO=<ID=CSQ'):
+                        csq_columns = re.search(r'Format: (.+)"', line).group(1).split('|')
+                    elif line.startswith('##INFO=<ID=OC'):
+                        info_column = re.search(r'ID=([^,]+),', line).group(1)
+                        info_columns.append(info_column)
+            break
+
+    file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf.vcf'))
+
+    if genome_ver == 'GRCh37':
+        vep_fasta = vep_fasta_hg37   
+    elif genome_ver == 'GRCh38':
+        vep_fasta = vep_fasta_hg38
+
+    for input_file in file_list:
+        input_file_path = os.path.join(cravat_output_dir, input_file)
+        output_file = os.path.join(vcf2maf_output_dir, input_file.replace('.vcf.vcf', '.maf'))
+
+        # Prepare the command
+        command = [
+            'perl',
+            vcf2maf_dir,
+            '--input-vcf', input_file_path,
+            '--output-maf', output_file,
+            '--ref-fasta', vep_fasta,
+            '--tumor-id', input_file.replace('.vcf', ''),
+            '--normal-id', '.',
+            '--ncbi-build', genome_ver,
+            '--inhibit-vep',
+            '--retain-ann', ','.join(csq_columns),
+            '--retain-info', ','.join(info_columns)
+        ]
+        # Execute the command
+        subprocess.run(command, capture_output=True, text=True)
+
+    if not os.path.exists(os.path.join(vcf2maf_output_dir, 'merged.maf')):
+        
+        file_list = os.listdir(vcf2maf_output_dir)
+        if len(file_list) == 1:
+            for file in file_list:
+                x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
+                x.to_csv(os.path.join(vcf2maf_output_dir, 'merged.maf'), sep='\t', index=False)
+
+        elif len(file_list) > 1:
+            merged = pd.DataFrame()
+            for file in file_list:
+                x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
+                merged = merged.append(x, ignore_index=True)
+            merged.to_csv(os.path.join(vcf2maf_output_dir, 'merged.maf'), sep='\t', index=False)
+         
+        elif len(file_list) == 0:
+            logging.error(
+                '\n'
+                'No input files for VCF2MAF\n'
+                'please check VEP run for errors'
+            )
+
+############### Run oncokb-annotator ###############
+def oncokb_run():
+    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.maf')} -o {os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
+    subprocess.run(cmd, shell=True)
+
 ############### Cancer genome interpreter ###############
 
 def server_status(url):
@@ -67,7 +273,7 @@ def server_status(url):
 def cgi_run():
     
     # Check CGI API status
-    cgi_api_url = 'https://www.cancergenomeinterpreter.org/api/v1'
+    cgi_api_url = 'https://www.cancergenomeinterpreter.org'
 
     if not server_status(cgi_api_url):
         logging.error('CGI server is down. Aborting script.')
@@ -199,210 +405,3 @@ def cgi_download():
                 '\n'
                 'Error in the CGI run, please check and re-run'
             )
-
-############### ENSEMBL-VEP ###############
-
-### VEP run
-def vep_run():
-     
-     # Create directories
-    if not os.path.exists(vep_input_dir):
-        os.makedirs(vep_input_dir)
-
-    # Read input dataframe removing duplicated rows
-    mut = pd.read_csv(first_input, sep='\t').drop_duplicates()
-
-    # Convert start position so integer
-    mut['start'] = mut['start'].astype(int)
-
-    # Set end position based on VEP requirements
-    mut['end'] = mut['start']
-    mut['end'] = mut['end'].astype(int)
-
-    def delins_pos(row):
-        if row['var'].startswith('-'):
-            row['end'] = row['start'] + len(row['ref']) - 1
-        elif row['ref'].startswith('-'):
-            row['start'] = row['end'] + 1
-        return row
-
-    def dnv_pos(row):
-        if len(row['var']) == 2 and len(row['ref']) == 2:
-            row['end'] = row['start'] + 1
-        return row
-
-    mut = mut.apply(dnv_pos, axis=1)
-    mut = mut.apply(delins_pos, axis=1)
-
-    # VEP requirement for allele
-    mut['allele'] = mut['ref'] + '/' + mut['var']
-
-    # Set strand column
-    mut['strand'] = '+'
-
-    # Select columns
-    mut = mut[['chr', 'start', 'end', 'allele', 'strand', 'tumour_id']]
-
-    # Arrange the input file for a quicker VEP run
-    mut = mut.sort_values(['chr', 'start'])
-
-    # Group the rows based on tumour_id
-    tumours = mut.groupby('tumour_id')
-
-    # Loop through the groups and write each group to a separate tsv file
-    for group_name, group_vep in tumours:
-            
-        # Define the output file path for this group
-        output_file_path = os.path.join('working_dir/vep_input', f'{group_name}.tsv')
-            
-        # Write the group dataframe to the output file as a tsv
-        group_vep.to_csv(output_file_path, sep='\t', index=False, header =False)
-            
-    print('VEP input files successfully created')
-
-    # Run VEP
-    if not os.path.exists(vep_output_dir):
-        os.makedirs(vep_output_dir)
-    
-    file_list = sorted(os.listdir(vep_input_dir)) 
-    for input_file in file_list:
-        input_file_path = os.path.join(vep_input_dir, input_file)
-        output_file = os.path.join(vep_output_dir, input_file.replace('.tsv', '.vcf'))
-
-        if genome_ver == 'GRCh37':
-            vep_fasta = vep_fasta_hg37    
-            loftee = loftee_hg37
-            spliceai = spliceai_hg37
-
-        elif genome_ver == 'GRCh38':
-            vep_fasta = vep_fasta_hg38
-            loftee = loftee_hg38
-            spliceai = spliceai_hg38
-
-        # Run VEP
-        command = [
-            os.path.join(vep_dir, 'vep'),
-            '-i', input_file_path,
-            '-o', output_file,
-            '--dir_cache', vep_cache_dir,
-            '--fasta', vep_fasta,
-            '--offline',
-            '--assembly', genome_ver,
-            '--pick',
-            '--cache',
-            '--plugin', loftee, 
-            '--plugin', spliceai,
-            '--vcf',
-            '--hgvs',
-            '--symbol',
-            '--numbers',
-            '--canonical',
-            '--variant_class',
-            '--no_stats'
-        ]
-        subprocess.run(command, capture_output=True, text=True)
-
-############### openCRAVAT ###############
-
-### openCRAVAT run
-def cravat_run():
-
-    if not os.path.exists(cravat_output_dir):
-        os.makedirs(cravat_output_dir)
-
-    for filename in os.listdir(vep_output_dir):
-        if filename.endswith('.vcf'):           
-            input_file = os.path.join(vep_output_dir, filename)
-
-            if genome_ver == 'GRCh37':
-                cravat_genome = 'hg19'
-            elif genome_ver == 'GRCh38':
-                cravat_genome = 'hg38'
-
-            if oncotree_code == 'NSCLC':
-                cravat_anno = 'chasmplus_LUAD chasmplus_LUSC'
-            elif oncotree_code == 'BRCA':
-                cravat_anno = 'chasmplus_BRCA'
-            
-            # Run openCRAVAT
-            cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t vcf -l {cravat_genome} -a chasmplus {cravat_anno} {'hg19' if cravat_genome == 'hg19' else ''}"
-            subprocess.run(cmd, shell=True)
-
-############### VCF2MAF + oncoKB-annotator ###############
-def vcf2maf_run():    
-    if not os.path.exists(vcf2maf_output_dir):
-        os.makedirs(vcf2maf_output_dir)
-
-    # Initialize the variables outside the loop
-    csq_columns = []
-    info_columns = []
-
-    # Process only the first .vcf file
-    for file_name in os.listdir(cravat_output_dir):
-        if file_name.endswith('.vcf'):
-            with open(os.path.join(cravat_output_dir, file_name), 'r') as file:
-                for line in file:
-                    if line.startswith('##INFO=<ID=CSQ'):
-                        csq_columns = re.search(r'Format: (.+)"', line).group(1).split('|')
-                    elif line.startswith('##INFO=<ID=OC'):
-                        info_column = re.search(r'ID=([^,]+),', line).group(1)
-                        info_columns.append(info_column)
-            break
-
-    file_list = sorted(file for file in os.listdir(cravat_output_dir) if file.endswith('.vcf.vcf'))
-
-    if genome_ver == 'GRCh37':
-        vep_fasta = vep_fasta_hg37   
-    elif genome_ver == 'GRCh38':
-        vep_fasta = vep_fasta_hg38
-
-    for input_file in file_list:
-        input_file_path = os.path.join(cravat_output_dir, input_file)
-        output_file = os.path.join(vcf2maf_output_dir, input_file.replace('.vcf.vcf', '.maf'))
-
-        # Prepare the command
-        command = [
-            'perl',
-            vcf2maf_dir,
-            '--input-vcf', input_file_path,
-            '--output-maf', output_file,
-            '--ref-fasta', vep_fasta,
-            '--tumor-id', input_file.replace('.vcf', ''),
-            '--normal-id', '.',
-            '--ncbi-build', genome_ver,
-            '--inhibit-vep',
-            '--retain-ann', ','.join(csq_columns),
-            '--retain-info', ','.join(info_columns)
-        ]
-        # Execute the command
-        subprocess.run(command, capture_output=True, text=True)
-
-    if not os.path.exists(os.path.join(vcf2maf_output_dir, 'merged.maf')):
-        
-        file_list = os.listdir(vcf2maf_output_dir)
-        if len(file_list) == 1:
-            for file in file_list:
-                x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
-                x.to_csv(os.path.join(vcf2maf_output_dir, 'merged.maf'), sep='\t', index=False)
-
-        elif len(file_list) > 1:
-            merged = pd.DataFrame()
-            for file in file_list:
-                x = pd.read_csv(os.path.join(vcf2maf_output_dir, file), sep='\t', comment='#')
-                merged = merged.append(x, ignore_index=True)
-            merged.to_csv(os.path.join(vcf2maf_output_dir, 'merged.maf'), sep='\t', index=False)
-         
-        elif len(file_list) == 0:
-            logging.error(
-                '\n'
-                'No input files for VCF2MAF\n'
-                'please check VEP run for errors'
-            )
-
-    # Run oncokb-annotator
-    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.maf')} -o {os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
-    subprocess.run(cmd, shell=True)
-
-############### Merging results ###############
-def merge_res():
-    

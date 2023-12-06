@@ -1,40 +1,23 @@
-# Input file
-input = input.tsv
+input = 20231205_input.tsv
+working_directory = /camp/home/marined/working/marined/ongoing/peace/driver-anno/20231205/20231205-driverpy-int-001
+genome_ver = GRCh37
+oncotree_code = NSCLC
 
-# Oncotree code
-oncotree_code = BRCA
+# OncoKB/CGI tokens
+cgi_id = danielemarinelli1@gmail.com 439c6d3db851a8845061
+oncokb_token = 34f64ddf-6d80-48ca-8b97-15b1acb88b9e
 
+# Annotators path
+vep_dir = /camp/home/marined/working/marined/xyz/ensembl-vep/vep_110.1/
+cravat_dir = ~/working/marined/.conda/envs/vep/bin/oc
+vcf2maf_dir = /camp/home/marined/working/marined/xyz/vcf2maf/vcf2maf.pl
+oncokb_dir = /camp/home/marined/working/marined/xyz/oncokb-annotator/
 
-############### Cancer genome interpreter ###############
-cgi_id = email@you.com cgi_token
-
-
-############### ENSEMBL-VEP + VCF2MAF + OncoKB ###############
-# Reference genome
-genome_ver = GRCh38
-
-# VEP directories
-vep_dir = /home/daniele/xyz/ensembl-vep/vep-110.1/ensembl-vep/
-vep_cache_dir = /home/daniele/.vep/
-vep_fasta_hg37 = /home/daniele/.vep/ref_fasta/Homo_sapiens.GRCh37.dna.toplevel.fa.gz
-vep_fasta_hg38 = /home/daniele/.vep/ref_fasta/Homo_sapiens.GRCh38.dna.toplevel.fa.gz
-
-# VEP plugins
-loftee_hg37 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee/GRCh37,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/GRCh37/human_ancestor.grch37.fa.gz,conservation_file:/home/daniele/.vep/Plugins/data/loftee/GRCh37/phylocsf_gerp.grch37.sql
-loftee_hg38 = LoF,loftee_path:/home/daniele/.vep/Plugins/loftee/GRCh38,human_ancestor_fa:/home/daniele/.vep/Plugins/data/loftee/GRCh38/human_ancestor.grch38.fa.gz,conservation_file:/home/daniele/.vep/Plugins/data/loftee/GRCh38/loftee.grch38.sql,gerp_bigwig:/home/daniele/.vep/Plugins/loftee/GRCh38/1,gerp_conservation_scores.homo_sapiens.GRCh38.bw
-SpliceAI_hg37 <- SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg19.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg19.vcf.gz
-SpliceAI_hg38 <- SpliceAI,snv=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.snv.hg38.vcf.gz,indel=/home/daniele/.vep/Plugins/data/SpliceAI/spliceai_scores.raw.indel.hg38.vcf.gz
-
-# VCF2MAF directory
-vcf2maf_dir = /home/daniele/xyz/vcf2maf/vcf2maf-1.6.21/vcf2maf/vcf2maf.pl
-
-# OncoKB-annotator
-oncokb_dir = /home/daniele/xyz/oncokb-annotator/
-
-# OncoKB token
-oncokb_token = oncokb_token
-
-
-############### openCRAVAT ###############
-# openCRAVAT directory
-cravat_dir = /home/daniele/.local/bin/oc
+# VEP cache files
+vep_cache_dir = /camp/home/marined/working/marined/xyz/ensembl-vep/index/
+vep_fasta_hg37 = /camp/home/marined/working/marined/xyz/ensembl-vep/fasta/110/Homo_sapiens.GRCh37.dna.toplevel.fa
+vep_fasta_hg38 = /camp/home/marined/working/marined/xyz/ensembl-vep/fasta/110/Homo_sapiens.GRCh38.dna.toplevel.fa
+loftee_hg37 = LoF,loftee_path:/camp/home/marined/working/marined/xyz/ensembl-vep/Plugins/loftee/GRCh37,human_ancestor_fa:/flask/reference/VEP/loftee/GRCh37/human_ancestor.grch37.fa.gz,conservation_file:/flask/reference/VEP/loftee/GRCh37/phylocsf_gerp.grch37.sql
+loftee_hg38 = LoF,loftee_path:/camp/home/marined/working/marined/xyz/ensembl-vep/Plugins/loftee/GRCh38,human_ancestor_fa:/flask/reference/VEP/loftee/GRCh38/human_ancestor.grch38.fa.gz,conservation_file:/flask/reference/VEP/loftee/GRCh38/loftee.grch38.sql,gerp_bigwig:/flask/reference/VEP/loftee/GRCh38/gerp_conservation_scores.homo_sapiens.GRCh38.bw
+SpliceAI_hg37 <- SpliceAI,snv=/flask/reference/VEP/SpliceAI/GRCh37/spliceai_scores.raw.snv.hg19.vcf.gz,indel=/flask/reference/VEP/SpliceAI/GRCh37/spliceai_scores.raw.indel.hg19.vcf.gz
+SpliceAI_hg38 <- SpliceAI,snv=/flask/reference/VEP/SpliceAI/GRCh38/spliceai_scores.raw.snv.hg38.vcf.gz,indel=/flask/reference/VEP/SpliceAI/GRCh38/spliceai_scores.raw.indel.hg38.vcf.gz

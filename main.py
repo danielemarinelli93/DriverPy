@@ -4,7 +4,7 @@ import os, subprocess, requests, shutil, time, argparse, logging, sys, re
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('main')
 
-from core import cgi_run, cgi_download, vep_run, cravat_run, vcf2maf_run
+from core import vep_run, cravat_run, vcf2maf_run, oncokb_run, cgi_run, cgi_download
 
 config_path = 'configs.txt'
 working_dir = 'working_dir'
@@ -67,18 +67,8 @@ def main(args):
             'DriverPy: a scalable tool to call driver mutations with multiple variant annotators\n'
             '\n'
             'for more details see: https://github.com/danielemarinelli93/DriverPy'
-            'use --run_all to run CGI, VEP and openCRAVAT modules'
         )
         sys.exit()
-    elif args.cgi_run:
-        logging.info(
-            '\n'
-            'Running Cancer Genome Interpreter\n'
-            f'Account/token: {cgi_id}'
-        )        
-        cgi_run()
-    elif args.cgi_download:
-        cgi_download()
     elif args.vep_run:
         logging.info(
             '\n'
@@ -102,13 +92,27 @@ def main(args):
     elif args.all:
         logging.info(
             '\n'
-            'Running all modules'
+            'Running VEP, openCRAVAT, VCF2MAF'
         )
-        cgi_run()
         vep_run()
         cravat_run()
+        vcf2maf_run()
+    elif args.cgi_run:
+        logging.info(
+            '\n'
+            'Running Cancer Genome Interpreter\n'
+            f'Account/token: {cgi_id}'
+        )        
+        cgi_run()
+    elif args.cgi_download:
         cgi_download()
-        merge_res()
+    elif args.oncokb_run:
+        logging.info(
+            '\n'
+            'Running the oncokb-annotator on vcf2maf merged output'
+            'For more details see: https://github.com/oncokb/oncokb-annotator'
+        )
+        oncokb_run()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=False)
