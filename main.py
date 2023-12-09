@@ -122,6 +122,7 @@ if __name__ == "__main__":
     parser.add_argument('--vep_run', action='store_true')
     parser.add_argument('--cravat_run', action='store_true')
     parser.add_argument('--vcf2maf_run', action='store_true')
+    parser.add_argument('--oncokb_run', action='store_true')
     parser.add_argument('--all', action='store_true')
     
     args = parser.parse_args()

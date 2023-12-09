@@ -389,8 +389,7 @@ def cgi_download():
             # Write filtered CGI output
             cgi = pd.read_csv(os.path.join(cgi_output_dir, 'alterations.tsv'), sep='\t')
             cgi['join'] = cgi[['CHROMOSOME', 'POSITION', 'REF', 'ALT', 'CGI-Sample ID']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
-            filtered_cgi_size = cgi[cgi['join'].map(cgi.groupby('join').size()) == 1]
-            filtered_cgi = filtered_cgi_size[['join', 'CGI-Oncogenic Summary', 'CGI-Oncogenic Prediction']]
+            filtered_cgi = cgi[cgi['join'].map(cgi.groupby('join').size()) == 1]
             filtered_cgi.to_csv(os.path.join(cgi_output_dir, 'filtered_cgi.tsv'), sep='\t', index=False)
             
         if cgi_log['status'] == 'Running':
@@ -409,11 +408,12 @@ def cgi_download():
     if not os.path.exists(merged_results_dir):
         os.makedirs(merged_results_dir)
 
-    vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'merged.maf'), sep='\t', dtype={'Start_Position': int, 'End_Position': int, 'Protein_position': int})
+    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.maf')} -o {os.path.join(merged_results_dir, 'merged-oncokb.maf')} -t {oncotree_code} -q Genomic_Change -r {genome_ver} -b {oncokb_token}"
+    subprocess.run(cmd, shell=True)
+
+    vcf2maf = pd.read_csv(os.path.join(merged_results_dir, 'merged-oncokb.maf'), sep='\t')
     cgi = pd.read_csv(os.path.join(cgi_output_dir, 'filtered_cgi.tsv'), sep='\t')
     vcf2maf['join'] = vcf2maf[['Chromosome', 'Start_Position', 'Reference_Allele', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
     merged = pd.merge(vcf2maf, cgi, on='join', how='left')
-    merged.to_csv(os.path.join(merged_results_dir, 'merged.tsv'), sep='\t')
+    merged.to_csv(os.path.join(merged_results_dir, 'merged-oncokb-cgi.maf'), sep='\t', index=False)
 
-    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(merged_results_dir, 'merged.tsv')} -o {os.path.join(merged_results_dir, 'merged-oncokb.maf')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
-    subprocess.run(cmd, shell=True)
