@@ -408,10 +408,7 @@ def cgi_download():
     if not os.path.exists(merged_results_dir):
         os.makedirs(merged_results_dir)
 
-    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.maf')} -o {os.path.join(merged_results_dir, 'merged-oncokb.maf')} -t {oncotree_code} -q Genomic_Change -r {genome_ver} -b {oncokb_token}"
-    subprocess.run(cmd, shell=True)
-
-    vcf2maf = pd.read_csv(os.path.join(merged_results_dir, 'merged-oncokb.maf'), sep='\t')
+    vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf'), sep='\t')
     cgi = pd.read_csv(os.path.join(cgi_output_dir, 'filtered_cgi.tsv'), sep='\t')
     vcf2maf['join'] = vcf2maf[['Chromosome', 'Start_Position', 'Reference_Allele', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
     merged = pd.merge(vcf2maf, cgi, on='join', how='left')
