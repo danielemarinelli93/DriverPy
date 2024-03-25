@@ -408,9 +408,17 @@ def cgi_download():
     if not os.path.exists(merged_results_dir):
         os.makedirs(merged_results_dir)
 
+
+### Merge results
+def final_merge():
     vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf'), sep='\t')
     cgi = pd.read_csv(os.path.join(cgi_output_dir, 'filtered_cgi.tsv'), sep='\t')
     vcf2maf['join'] = vcf2maf[['Chromosome', 'Start_Position', 'Reference_Allele', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
     merged = pd.merge(vcf2maf, cgi, on='join', how='left')
     merged.to_csv(os.path.join(merged_results_dir, 'merged-oncokb-cgi.maf'), sep='\t', index=False)
-
+    if oncotree_code == 'NSCLC':
+        merged_filtered = merged[['LoF', 'SpliceAI_pred_DS_AG', 'SpliceAI_pred_DS_AL', 'SpliceAI_pred_DS_DG', 'SpliceAI_pred_DS_DL', 'CGI-Oncogenic Prediction', 'CGI-Oncogenic Summary', 'ONCOGENIC', 'OC_chasmplus__pval', 'OC_chasmplus_LUAD__pval', 'OC_chasmplus_LUSC__pval', 'Hugo_Symbol', 'Tumor_Sample_Barcode', 'join']]
+    elif oncotree_code == 'BRCA':
+        merged_filtered = merged[['LoF', 'SpliceAI_pred_DS_AG', 'SpliceAI_pred_DS_AL', 'SpliceAI_pred_DS_DG', 'SpliceAI_pred_DS_DL', 'CGI-Oncogenic Prediction', 'CGI-Oncogenic Summary', 'ONCOGENIC', 'OC_chasmplus__pval', 'OC_chasmplus_BRCA__pval', 'Hugo_Symbol', 'Tumor_Sample_Barcode', 'join']]
+    merged_filtered.to_csv(os.path.join(merged_results_dir, 'merged-filtered.maf'), sep='\t', index=False)
+    
