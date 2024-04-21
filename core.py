@@ -43,8 +43,12 @@ with open(config_path, 'r') as file:
             oncokb_dir = line.split('=')[1].strip()
         elif line.startswith('oncokb_token'):
             oncokb_token = line.split('=')[1].strip()
-        elif line.startswith('oncotree_code'):
-            oncotree_code = line.split('=')[1].strip()
+        elif line.startswith('oncotree_code_chasm'):
+            oncotree_code_chasm = line.split('=')[1].strip()
+        elif line.startswith('oncotree_code_cgi'):
+            oncotree_code_cgi = line.split('=')[1].strip()
+        elif line.startswith('oncotree_code_oncokb'):
+            oncotree_code_oncokb = line.split('=')[1].strip()
         elif line.startswith('cravat_dir'):
             cravat_dir = line.split('=')[1].strip()
         elif line.startswith('cgi_id'):
@@ -174,10 +178,12 @@ def cravat_run():
             elif genome_ver == 'GRCh38':
                 cravat_genome = 'hg38'
 
-            if oncotree_code == 'NSCLC':
+            if oncotree_code_chasm == 'NSCLC':
                 cravat_anno = 'chasmplus_LUAD chasmplus_LUSC'
-            elif oncotree_code == 'BRCA':
+            elif oncotree_code_chasm == 'BRCA':
                 cravat_anno = 'chasmplus_BRCA'
+            elif oncotree_code_chasm == 'OV':
+                cravat_anno = 'chasmplus_OV'
             
             # Run openCRAVAT
             cmd = f"{cravat_dir} run {input_file} -d {cravat_output_dir} -t vcf -l {cravat_genome} -a chasmplus {cravat_anno} {'hg19' if cravat_genome == 'hg19' else ''}"
@@ -257,7 +263,7 @@ def vcf2maf_run():
 
 ############### Run oncokb-annotator ###############
 def oncokb_run():
-    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.maf')} -o {os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf')} -t {oncotree_code} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
+    cmd = f"python3 {os.path.join(oncokb_dir, 'MafAnnotator.py')} -i {os.path.join(vcf2maf_output_dir, 'merged.maf')} -o {os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf')} -t {oncotree_code_oncokb} -q HGVSp_Short -r {genome_ver} -b {oncokb_token}"
     subprocess.run(cmd, shell=True)
 
 ############### Cancer genome interpreter ###############
@@ -325,7 +331,7 @@ def cgi_run():
 
         # Send input file to API
         headers = {'Authorization': cgi_id}
-        payload = {'cancer_type': oncotree_code, 'title': first_input, 'reference': 'hg19' if genome_ver == 'GRCh37' else 'hg38' if genome_ver == 'GRCh38' else None}
+        payload = {'cancer_type': oncotree_code_cgi, 'title': first_input, 'reference': 'hg19' if genome_ver == 'GRCh37' else 'hg38' if genome_ver == 'GRCh38' else None}
         r = requests.post('https://www.cancergenomeinterpreter.org/api/v1',
                         headers=headers,
                         files={'mutations': open('working_dir/cgi_input/cgi_input.tsv', 'rb')},
@@ -416,9 +422,12 @@ def final_merge():
     vcf2maf['join'] = vcf2maf[['Chromosome', 'Start_Position', 'Reference_Allele', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
     merged = pd.merge(vcf2maf, cgi, on='join', how='left')
     merged.to_csv(os.path.join(merged_results_dir, 'merged-oncokb-cgi.maf'), sep='\t', index=False)
-    if oncotree_code == 'NSCLC':
+    if oncotree_code_chasm == 'NSCLC':
         merged_filtered = merged[['LoF', 'SpliceAI_pred_DS_AG', 'SpliceAI_pred_DS_AL', 'SpliceAI_pred_DS_DG', 'SpliceAI_pred_DS_DL', 'CGI-Oncogenic Prediction', 'CGI-Oncogenic Summary', 'ONCOGENIC', 'OC_chasmplus__pval', 'OC_chasmplus_LUAD__pval', 'OC_chasmplus_LUSC__pval', 'Hugo_Symbol', 'Tumor_Sample_Barcode', 'join']]
-    elif oncotree_code == 'BRCA':
+    elif oncotree_code_chasm == 'BRCA':
         merged_filtered = merged[['LoF', 'SpliceAI_pred_DS_AG', 'SpliceAI_pred_DS_AL', 'SpliceAI_pred_DS_DG', 'SpliceAI_pred_DS_DL', 'CGI-Oncogenic Prediction', 'CGI-Oncogenic Summary', 'ONCOGENIC', 'OC_chasmplus__pval', 'OC_chasmplus_BRCA__pval', 'Hugo_Symbol', 'Tumor_Sample_Barcode', 'join']]
+    elif oncotree_code_chasm == 'OV':
+        merged_filtered = merged[['LoF', 'SpliceAI_pred_DS_AG', 'SpliceAI_pred_DS_AL', 'SpliceAI_pred_DS_DG', 'SpliceAI_pred_DS_DL', 'CGI-Oncogenic Prediction', 'CGI-Oncogenic Summary', 'ONCOGENIC', 'OC_chasmplus__pval', 'OC_chasmplus_OV__pval', 'Hugo_Symbol', 'Tumor_Sample_Barcode', 'join']]
+
     merged_filtered.to_csv(os.path.join(merged_results_dir, 'merged-filtered.maf'), sep='\t', index=False)
     
