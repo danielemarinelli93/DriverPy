@@ -1,6 +1,8 @@
 input = file.tsv
 genome_ver = GRCh37
-oncotree_code = NSCLC
+oncotree_code_chasm = 
+oncotree_code_oncokb = 
+oncotree_code_cgi = 
 
 # OncoKB/CGI tokens
 cgi_id = youremail@xyz.com your_token
