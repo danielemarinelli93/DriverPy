@@ -411,12 +411,11 @@ def cgi_download():
                 'Error in the CGI run, please check and re-run'
             )
           
-    if not os.path.exists(merged_results_dir):
-        os.makedirs(merged_results_dir)
-
 
 ### Merge results
 def final_merge():
+    if not os.path.exists(merged_results_dir):
+        os.makedirs(merged_results_dir)
     vcf2maf = pd.read_csv(os.path.join(vcf2maf_output_dir, 'merged-oncokb.maf'), sep='\t')
     cgi = pd.read_csv(os.path.join(cgi_output_dir, 'filtered_cgi.tsv'), sep='\t')
     vcf2maf['join'] = vcf2maf[['Chromosome', 'Start_Position', 'Reference_Allele', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode']].apply(lambda row: ' '.join(str(x) for x in row), axis=1)
