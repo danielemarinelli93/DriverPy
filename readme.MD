@@ -1,4 +1,6 @@
-This command-line script is designed as a scalable tool, utilizing some of the most common variant annotators (such as VEP and openCRAVAT) to annotate cancer driver mutations. By employing multiple variant annotators, the tool maximizes flexibility, allowing for the use of specific plugins that may only be available for a particular annotator. Additionally, the script can be easily updated with new plugins as they are released.
+20th July 2025
+
+This command-line script is designed as a scalable tool running some of the most common variant annotators (such as VEP and openCRAVAT) to annotate cancer driver mutations. By employing multiple variant annotators, the tool maximizes flexibility, allowing for the use of specific plugins that may only be available for a particular annotator. Additionally, the script can be easily updated with new plugins as they are released.
 
 Variant annotators/pipelines:
 - ENSEMBL-VEP: https://www.ensembl.org/info/docs/tools/vep/index.html, v110.1
@@ -10,7 +12,7 @@ Variant annotators/pipelines:
 The core of the tool runs VEP on the 5-column .tsv input file ('chr', 'start', 'ref', 'var', 'tumour_id').
 For each unique 'tumour_id', a separate input file for VEP is generated in the 'vep_input' folder. VEP processes these files and outputs a .vcf file for each 'tumour_id' in the 'vep_output' folder, which is then used as input for openCRAVAT. The updated .vcf files resulting from the openCRAVAT run are subsequently converted to .maf files using VCF2MAF, preserving all annotations from both VEP and openCRAVAT. All outputs are stored in the 'working_dir' directory, which is created in the directory from which the script is executed.
 
-Since both VEP and openCRAVAT can utilize cache files, the core of the DriverPy tool includes only these components. This version of DriverPy incorporates the LOFTEE and SpliceAI plugins from VEP, along with multiple CHASMplus modules from openCRAVAT.
+Since both VEP and openCRAVAT use cache files, the core of the DriverPy tool includes only these components. This version of DriverPy incorporates the LOFTEE, SpliceAI and AlphaMissense plugins from VEP, along with multiple CHASMplus modules from openCRAVAT.
 Additional plugins and modules can be easily integrated by making slight modifications to the script and the configuration file.
 
 Separate modules run Cancer Genome Interpreter (https://www.cancergenomeinterpreter.org/) and OncoKB (https://www.oncokb.org/), both of which are API-based and therefore require identification via a token and/or email.
@@ -20,5 +22,5 @@ The oncokb-annotator can also be run on the output .maf file from the VCF2MAF ru
 I recommend running DriverPy in a dedicated conda environment with Python 3.7, either locally or on a server. The core of the tool is executed through the command line using the 'python3 main.py --all' command. All modules are contained within the "core.py" file.
 VEP plugins should be installed following the instructions here: https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
 openCRAVAT modules should be installed according to the guidelines provided here: https://open-cravat.readthedocs.io/en/latest/quickstart.html
-The "configs.txt" file needs to be modified to reflect the location of binary and reference files for VEP and openCRAVAT. Any additional VEP plugins or openCRAVAT modules should also be specified in the configs file.
+The "configs.txt" file needs to be modified to reflect the location of reference files for VEP and openCRAVAT. Any additional VEP plugins or openCRAVAT modules should also be specified in the configs file.
 To avoid conflicts with VCF2MAF, I suggest unzipping the VEP fasta files.
