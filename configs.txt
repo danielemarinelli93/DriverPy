@@ -1,8 +1,6 @@
 input = file.tsv
 genome_ver = GRCh37
-oncotree_code_chasm = 
-oncotree_code_oncokb = 
-oncotree_code_cgi = 
+oncotree_code = NSCLC
 
 # OncoKB/CGI tokens
 cgi_id = youremail@xyz.com your_token
@@ -22,3 +20,5 @@ loftee_hg37 = LoF,loftee_path:/path/to/vep/Plugins/loftee/GRCh37,human_ancestor_
 loftee_hg38 = LoF,loftee_path:/path/to/vep/Plugins/loftee/GRCh38,human_ancestor_fa:/path/to/vep/loftee/GRCh38/human_ancestor.grch38.fa.gz,conservation_file:/path/to/vep/loftee/GRCh38/loftee.grch38.sql,gerp_bigwig:/flask/reference/VEP/loftee/GRCh38/gerp_conservation_scores.homo_sapiens.GRCh38.bw
 SpliceAI_hg37 <- SpliceAI,snv=/path/to/vep/SpliceAI/GRCh37/spliceai_scores.raw.snv.hg19.vcf.gz,indel=/path/to/vep/SpliceAI/GRCh37/spliceai_scores.raw.indel.hg19.vcf.gz
 SpliceAI_hg38 <- SpliceAI,snv=/path/to/vep/SpliceAI/GRCh38/spliceai_scores.raw.snv.hg38.vcf.gz,indel=/path/to/vep/SpliceAI/GRCh38/spliceai_scores.raw.indel.hg38.vcf.gz
+AlphaMissense_hg37 <- AlphaMissense,file=/path/to/lphaMissense_hg19.tsv.gz
+AlphaMissense_hg38 <- AlphaMissense,file=/path/to/AlphaMissense_hg38.tsv.gz
