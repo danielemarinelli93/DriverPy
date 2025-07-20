@@ -4,7 +4,7 @@ import os, subprocess, requests, shutil, time, argparse, logging, sys, re
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('main')
 
-from core import vep_run, cravat_run, vcf2maf_run, oncokb_run, cgi_run, cgi_download, final_merge
+from core import vep_run, cravat_run, vcf2maf_run, oncokb_run, cgi_run, cgi_download
 
 config_path = 'configs.txt'
 working_dir = 'working_dir'
@@ -40,6 +40,10 @@ with open(config_path, 'r') as file:
             spliceai_hg37 = line.split('<-')[1].strip()
         elif line.startswith('SpliceAI_hg38'):
             spliceai_hg38 = line.split('<-')[1].strip()
+        elif line.startswith('AlphaMissense_hg37'):
+            AlphaMissense_hg37 = line.split('<-')[1].strip()
+        elif line.startswith('AlphaMissense_hg38'):
+            AlphaMissense_hg38 = line.split('<-')[1].strip()    
         elif line.startswith('vcf2maf_dir'):
             vcf2maf_dir = line.split('=')[1].strip()
         elif line.startswith('retain_ann'):
@@ -113,12 +117,6 @@ def main(args):
             'For more details see: https://github.com/oncokb/oncokb-annotator'
         )
         oncokb_run()
-    elif args.final_merge:
-        logging.info(
-            '\n'
-            'Merging results'
-        )
-        final_merge()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=False)
@@ -129,7 +127,6 @@ if __name__ == "__main__":
     parser.add_argument('--cravat_run', action='store_true')
     parser.add_argument('--vcf2maf_run', action='store_true')
     parser.add_argument('--oncokb_run', action='store_true')
-    parser.add_argument('--final_merge', action='store_true')
     parser.add_argument('--all', action='store_true')
     
     args = parser.parse_args()
